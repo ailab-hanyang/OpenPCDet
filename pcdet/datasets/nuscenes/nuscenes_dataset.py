@@ -358,8 +358,6 @@ def create_nuscenes_info(version, data_path, save_path, max_sweeps=10, with_cam=
     from nuscenes.nuscenes import NuScenes
     from nuscenes.utils import splits
     from . import nuscenes_utils
-    data_path = data_path / version
-    save_path = save_path / version
 
     assert version in ['v1.0-trainval', 'v1.0-test', 'v1.0-mini']
     if version == 'v1.0-trainval':
@@ -420,8 +418,8 @@ if __name__ == '__main__':
         dataset_cfg.VERSION = args.version
         create_nuscenes_info(
             version=dataset_cfg.VERSION,
-            data_path=ROOT_DIR / 'data' / 'nuscenes',
-            save_path=ROOT_DIR / 'data' / 'nuscenes',
+            data_path=Path(dataset_cfg.DATA_PATH),
+            save_path=Path(dataset_cfg.DATA_PATH),
             max_sweeps=dataset_cfg.MAX_SWEEPS,
             with_cam=args.with_cam
         )

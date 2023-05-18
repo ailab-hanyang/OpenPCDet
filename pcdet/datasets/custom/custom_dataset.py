@@ -22,10 +22,14 @@ class CustomDataset(DatasetTemplate):
         super().__init__(
             dataset_cfg=dataset_cfg, class_names=class_names, training=training, root_path=root_path, logger=logger
         )
-        self.split = self.dataset_cfg.DATA_SPLIT[self.mode]
-
-        split_dir = os.path.join(self.root_path, 'ImageSets', (self.split + '.txt'))
-        self.sample_id_list = [x.strip() for x in open(split_dir).readlines()] if os.path.exists(split_dir) else None
+        self.split_seq = self.dataset_cfg.DATA_SPLIT_SEQUENCE[self.mode]
+        self.sample_id_list = list()
+        for split in self.split_seq:
+            split_dir = os.path.join(self.root_path, 'ImageSets', (split + '.txt'))
+            self.sample_id_list += [x.strip() for x in open(split_dir).readlines()] if os.path.exists(split_dir) else None
+        # self.split = self.dataset_cfg.DATA_SPLIT[self.mode]
+        # split_dir = os.path.join(self.root_path, 'ImageSets', (self.split + '.txt'))
+        # self.sample_id_list = [x.strip() for x in open(split_dir).readlines()] if os.path.exists(split_dir) else None
 
         self.custom_infos = []
         self.include_data(self.mode)
@@ -69,14 +73,22 @@ class CustomDataset(DatasetTemplate):
         return point_features
 
     def set_split(self, split):
-        super().__init__(
-            dataset_cfg=self.dataset_cfg, class_names=self.class_names, training=self.training,
+        if split == 'train':
+            training = True
+        else:
+            training = False
+        self.__init__(
+            dataset_cfg=self.dataset_cfg, class_names=self.class_names, training=training,
             root_path=self.root_path, logger=self.logger
         )
-        self.split = split
+        self.sample_id_list = list()
+        for split in self.split_seq:
+            split_dir = os.path.join(self.root_path, 'ImageSets', (split + '.txt'))
+            # self.sample_id_list = [x.strip() for x in open(split_dir).readlines()] if os.path.exists(split_dir) else None
+            self.sample_id_list += [x.strip() for x in open(split_dir).readlines()] if os.path.exists(split_dir) else None
 
-        split_dir = self.root_path / 'ImageSets' / (self.split + '.txt')
-        self.sample_id_list = [x.strip() for x in open(split_dir).readlines()] if split_dir.exists() else None
+        # split_dir = self.root_path / 'ImageSets' / (self.split + '.txt')
+        # self.sample_id_list = [x.strip() for x in open(split_dir).readlines()] if split_dir.exists() else None
 
     def __len__(self):
         if self._merge_all_iters_to_one_epoch:
@@ -143,7 +155,7 @@ class CustomDataset(DatasetTemplate):
         import concurrent.futures as futures
 
         def process_single_scene(sample_idx):
-            print('%s sample_idx: %s' % (self.split, sample_idx))
+            print('%s sample_idx: %s' % (self.mode, sample_idx))
             info = {}
             pc_info = {'num_features': num_features, 'lidar_idx': sample_idx}
             info['point_cloud'] = pc_info
@@ -152,7 +164,11 @@ class CustomDataset(DatasetTemplate):
                 annotations = {}
                 gt_boxes_lidar, name = self.get_label(sample_idx)
                 annotations['name'] = name
-                annotations['gt_boxes_lidar'] = gt_boxes_lidar[:, :7]
+                # Prevent np indexing error when only one sample exist!
+                try:
+                    annotations['gt_boxes_lidar'] = gt_boxes_lidar[:, :7]
+                except:
+                    annotations['gt_boxes_lidar'] = gt_boxes_lidar[:7]
                 info['annos'] = annotations
 
             return info
@@ -277,7 +293,7 @@ if __name__ == '__main__':
         ROOT_DIR = (Path(__file__).resolve().parent / '../../../').resolve()
         create_custom_infos(
             dataset_cfg=dataset_cfg,
-            class_names=['Vehicle', 'Pedestrian', 'Cyclist'],
-            data_path=ROOT_DIR / 'data' / 'custom',
-            save_path=ROOT_DIR / 'data' / 'custom',
+            class_names=['Car'],
+            data_path=Path(dataset_cfg.DATA_PATH),
+            save_path=Path(dataset_cfg.DATA_PATH)
         )
