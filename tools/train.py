@@ -33,7 +33,7 @@ def parse_config():
     parser.add_argument('--sync_bn', action='store_true', default=False, help='whether to use sync bn')
     parser.add_argument('--fix_random_seed', action='store_true', default=False, help='')
     parser.add_argument('--ckpt_save_interval', type=int, default=1, help='number of training epochs')
-    parser.add_argument('--local-rank', type=int, default=0, help='local rank for distributed training')
+    parser.add_argument('--local_rank', type=int, default=0, help='local rank for distributed training')
     parser.add_argument('--max_ckpt_save_num', type=int, default=30, help='max number of saved checkpoint')
     parser.add_argument('--merge_all_iters_to_one_epoch', action='store_true', default=False, help='')
     parser.add_argument('--set', dest='set_cfgs', default=None, nargs=argparse.REMAINDER,
@@ -42,7 +42,7 @@ def parse_config():
     parser.add_argument('--max_waiting_mins', type=int, default=0, help='max waiting minutes')
     parser.add_argument('--start_epoch', type=int, default=0, help='')
     parser.add_argument('--num_epochs_to_eval', type=int, default=0, help='number of checkpoints to be evaluated')
-    parser.add_argument('--save_to_file', action='store_true', default=False, help='')
+    parser.add_argument('--save_to_file', action='store_true', default=True, help='')
     
     parser.add_argument('--use_tqdm_to_record', action='store_true', default=False, help='if True, the intermediate losses will not be logged to file, only tqdm will be used')
     parser.add_argument('--logger_iter_interval', type=int, default=50, help='')

@@ -4,7 +4,8 @@ DATA_CONFIG:
     _BASE_CONFIG_: cfgs/dataset_configs/custom_dataset_v4.yaml
     # _BASE_CONFIG_: cfgs/dataset_configs/custom_dataset_v3.yaml
     # _BASE_CONFIG_: /home/ailab/git/ailab_ws/src/online_pcdet/src/OpenPCDet/tools/cfgs/dataset_configs/kitti_dataset.yaml
-    POINT_CLOUD_RANGE: [-134.4, -134.4, -3, 134.4 ,134.4, 1]
+    # POINT_CLOUD_RANGE: [-44.8, -44.8, -3, 44.8, 44.8, 1]
+    POINT_CLOUD_RANGE: [-89.6, -89.6, -3, 89.6 ,89.6, 1]
     DATA_PROCESSOR:
         - NAME: mask_points_and_boxes_outside_range
           REMOVE_OUTSIDE_BOXES: True
@@ -16,8 +17,8 @@ DATA_CONFIG:
           }
 
         - NAME: transform_points_to_voxels
-          VOXEL_SIZE: [0.32, 0.32, 4]
-          MAX_POINTS_PER_VOXEL: 128
+          VOXEL_SIZE: [0.16, 0.16, 4]
+          MAX_POINTS_PER_VOXEL: 32
           MAX_NUMBER_OF_VOXELS: {
             'train': 16000,
             'test': 40000
@@ -146,7 +147,7 @@ MODEL:
 
 
 OPTIMIZATION:
-    BATCH_SIZE_PER_GPU: 4
+    BATCH_SIZE_PER_GPU: 2
     NUM_EPOCHS: 100
 
     OPTIMIZER: adam_onecycle
