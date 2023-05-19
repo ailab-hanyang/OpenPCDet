@@ -10,7 +10,8 @@ MAP_CLASS_TO_KITTI: {
 
 DATA_SPLIT_SEQUENCE: {
   'train': ['000', '001', '002', '003', '004', '005'],
-  'test':  ['006']
+  'test':  ['006'],
+  'eval':  ['005'] # Currently, only one evaluation split is supported
 }
 
 INFO_PATH: {
