@@ -1,0 +1,15 @@
+Preprocessing
+STEP 1
+python -m pcdet.datasets.custom.custom_dataset create_custom_infos cfgs/dataset_configs/custom_dataset_vX.yaml
+STEP 2
+python -m pcdet.datasets.custom.custom_dataset create_custom_infos cfgs/dataset_configs/custom_dataset_vX.yaml
+
+Training
+Dist
+cd tools/
+bash scripts/dist_train.sh 4 --cfg_file cfg/custom_models/MODEL_CONFIG.yaml --extra_tag "DSV#_feature"
+python train.py --cfg_file cfg/custom_models/MODEL_CONFIG.yaml --extra_tag "DSV#_feature"
+
+Single GPU
+cd tools/
+python train.py --cfg_file cfg/custom_models/MODEL_CONFIG.yaml --extra_tag "DSV#_feature"
