@@ -13,7 +13,6 @@ DATA_SPLIT_SEQUENCE: {
   'test':  ['006'],
   'eval':  ['005'] # Currently, only one evaluation split is supported
 }
-}
 
 INFO_PATH: {
     'train': [custom_infos_train_largefov.pkl],

@@ -1,17 +1,18 @@
 DATASET: 'CustomDataset'
 # DATA_PATH: '../data/custom'
-DATA_PATH: '/home/ailab/AILabDataset/02_Custom_Dataset/18_CARMAKER_Dataset/Detection3D/CustomDatasetV4'
+DATA_PATH: '/home/ailab/AILabDataset/02_Custom_Dataset/18_CARMAKER_Dataset/Detection3D/CustomDatasetV5'
 
-POINT_CLOUD_RANGE: [-44.8, -44.8, -3, 44.8, 44.8, 1]
+POINT_CLOUD_RANGE: [-89.6, -67.2, -3, 89.6 ,67.2, 1]
+# POINT_CLOUD_RANGE: [-120.0, 60.0, 60.0, 44.8, 44.8, 1]
 
 MAP_CLASS_TO_KITTI: {
     'Car': 'Car'
 }
 
 DATA_SPLIT_SEQUENCE: {
-  'train': ['000', '001', '002', '003', '004', '005'],
-  'test':  ['006'],
-  'eval':  ['007'] # Currently, only one evaluation split is supported
+  'train': ['train'],
+  'test':  ['valid'],
+  'eval':  ['valid']
 }
 
 INFO_PATH: {
@@ -28,19 +29,19 @@ POINT_FEATURE_ENCODING: {
 DATA_AUGMENTOR:
     DISABLE_AUG_LIST: ['placeholder']
     AUG_CONFIG_LIST:
-        # - NAME: gt_sampling
-          # USE_ROAD_PLANE: False
-          # DB_INFO_PATH:
-          #     - custom_dbinfos_train.pkl
-          # PREPARE: {
-          #    filter_by_min_points: ['Car:5'],
-          # }
+        - NAME: gt_sampling
+          USE_ROAD_PLANE: False
+          DB_INFO_PATH:
+              - custom_dbinfos_train.pkl
+          PREPARE: {
+             filter_by_min_points: ['Car:5'],
+          }
 
-          # SAMPLE_GROUPS: ['Car:20']
-          # NUM_POINT_FEATURES: 4
-          # DATABASE_WITH_FAKELIDAR: False
-          # REMOVE_EXTRA_WIDTH: [0.0, 0.0, 0.0]
-          # LIMIT_WHOLE_SCENE: True
+          SAMPLE_GROUPS: ['Car:20']
+          NUM_POINT_FEATURES: 4
+          DATABASE_WITH_FAKELIDAR: False
+          REMOVE_EXTRA_WIDTH: [0.0, 0.0, 0.0]
+          LIMIT_WHOLE_SCENE: True
 
         - NAME: random_world_flip
           ALONG_AXIS_LIST: ['x', 'y']
@@ -62,7 +63,8 @@ DATA_PROCESSOR:
       }
 
     - NAME: transform_points_to_voxels
-      VOXEL_SIZE: [0.1, 0.1, 0.15]
+      # VOXEL_SIZE: [0.1, 0.1, 0.15]
+      VOXEL_SIZE: [0.05, 0.05, 0.1]
       MAX_POINTS_PER_VOXEL: 5
       MAX_NUMBER_OF_VOXELS: {
         'train': 150000,
