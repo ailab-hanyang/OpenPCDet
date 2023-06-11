@@ -23,6 +23,16 @@ It is also the official code release of [`[PointRCNN]`](https://arxiv.org/abs/18
 
 
 ## Changelog
+[2023-06-12] NEW: Added the onnx file conversion tool(from [OpenPCDet-hova](https://github.com/hova88/OpenPCDet)) for [`PointPillar-MultiHead onnx file conversion tool`](/tools/onnx_utils). After installing as described in [Installation](docs/INSTALL.md), follow the steps below to complete the conversion:
+  1. Download [PointPillar-MultiHead](tools/cfgs/nuscenes_models/cbgs_pp_multihead.yaml) corresponding weight file [model-23M](https://drive.google.com/file/d/1p-501mTWsq0G9RzroTWSXreIMyTUUpBM/view?usp=sharing) 
+  2. Configure the paths in [trans_pfe.py](tools/onnx_utils/trans_pfe.py) and [trans_backbone_multihead.py](tools/onnx_utils/trans_backbone_multihead.py) accordingly
+  3. Run the two files separately:
+      ```bash
+      cd tools/onnx_utils
+      python trans_pfe.py
+      python trans_backbone_multihead.py
+      ```
+
 [2023-05-13] **NEW:** Added support for the multi-modal 3D object detection models on Nuscenes dataset.  
 * Support multi-modal Nuscenes detection (See the [GETTING_STARTED.md](docs/GETTING_STARTED.md) to process data).
 * Support [TransFusion-Lidar](https://arxiv.org/abs/2203.11496) head, which ahcieves 69.43% NDS on Nuscenes validation dataset.
