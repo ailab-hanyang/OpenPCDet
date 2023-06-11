@@ -1,10 +1,8 @@
 CLASS_NAMES: ['Car']
 
 DATA_CONFIG: 
-    _BASE_CONFIG_: cfgs/dataset_configs/custom_dataset_v4_3.yaml
-    # _BASE_CONFIG_: cfgs/dataset_configs/custom_dataset_v3.yaml
-    # _BASE_CONFIG_: /home/ailab/git/ailab_ws/src/online_pcdet/src/OpenPCDet/tools/cfgs/dataset_configs/kitti_dataset.yaml
-    POINT_CLOUD_RANGE: [-89.6, -44.8, -3, 89.6, 44.8, 1]
+    _BASE_CONFIG_: /OpenPCDet/tools/cfgs/dataset_configs/custom_dataset_v4.yaml
+    POINT_CLOUD_RANGE: [-60.0, -16.8, -2.0, 84.0, 16.8, 3.0] #[0, -39.68, -3, 69.12, 39.68, 1] #[-80.0, -40.0, -4, 80.0, 40.0, 2]
     DATA_PROCESSOR:
         - NAME: mask_points_and_boxes_outside_range
           REMOVE_OUTSIDE_BOXES: True
@@ -16,10 +14,8 @@ DATA_CONFIG:
           }
 
         - NAME: transform_points_to_voxels
-          # VOXEL_SIZE: [0.16, 0.16, 4]
-          VOXEL_SIZE: [0.32, 0.32, 4]
-          # MAX_POINTS_PER_VOXEL: 32
-          MAX_POINTS_PER_VOXEL: 128
+          VOXEL_SIZE: [0.3, 0.3, 4] #[0.16, 0.16, 4]
+          MAX_POINTS_PER_VOXEL: 32
           MAX_NUMBER_OF_VOXELS: {
             'train': 16000,
             'test': 40000
@@ -28,15 +24,15 @@ DATA_CONFIG:
         DISABLE_AUG_LIST: ['placeholder']
         AUG_CONFIG_LIST:
             - NAME: gt_sampling
-              # USE_ROAD_PLANE: True
+              USE_ROAD_PLANE: False
               DB_INFO_PATH:
                   - custom_dbinfos_train.pkl
               PREPARE: {
-                 filter_by_min_points: ['Car:5']
+                 filter_by_min_points: ['Car:5'],
                 #  filter_by_difficulty: [-1],
               }
 
-              SAMPLE_GROUPS: ['Car:15']
+              SAMPLE_GROUPS: ['Car:15'],
               NUM_POINT_FEATURES: 4
               DATABASE_WITH_FAKELIDAR: False
               REMOVE_EXTRA_WIDTH: [0.0, 0.0, 0.0]
@@ -59,11 +55,11 @@ MODEL:
         WITH_DISTANCE: False
         USE_ABSLOTE_XYZ: True
         USE_NORM: True
-        NUM_FILTERS: [64]
+        NUM_FILTERS: [64]  #[64]
 
     MAP_TO_BEV:
         NAME: PointPillarScatter
-        NUM_BEV_FEATURES: 64
+        NUM_BEV_FEATURES: 64 #64
 
     BACKBONE_2D:
         NAME: BaseBEVBackbone
@@ -93,7 +89,6 @@ MODEL:
                 'matched_threshold': 0.6,
                 'unmatched_threshold': 0.45
             }
-            # },
             # {
             #     'class_name': 'Pedestrian',
             #     'anchor_sizes': [[0.8, 0.6, 1.73]],
@@ -107,6 +102,16 @@ MODEL:
             # {
             #     'class_name': 'Cyclist',
             #     'anchor_sizes': [[1.76, 0.6, 1.73]],
+            #     'anchor_rotations': [0, 1.57],
+            #     'anchor_bottom_heights': [-0.6],
+            #     'align_center': False,
+            #     'feature_map_stride': 2,
+            #     'matched_threshold': 0.5,
+            #     'unmatched_threshold': 0.35
+            # },
+            # {
+            #     'class_name': 'Trafficsign',
+            #     'anchor_sizes': [[1.0, 1.0, 2.3]],
             #     'anchor_rotations': [0, 1.57],
             #     'anchor_bottom_heights': [-0.6],
             #     'align_center': False,
@@ -148,8 +153,8 @@ MODEL:
 
 
 OPTIMIZATION:
-    BATCH_SIZE_PER_GPU: 6
-    NUM_EPOCHS: 300
+    BATCH_SIZE_PER_GPU: 8
+    NUM_EPOCHS: 500
 
     OPTIMIZER: adam_onecycle
     LR: 0.003

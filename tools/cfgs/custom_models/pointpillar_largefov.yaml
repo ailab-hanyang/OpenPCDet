@@ -1,7 +1,7 @@
 CLASS_NAMES: ['Car']
 
 DATA_CONFIG: 
-    _BASE_CONFIG_: cfgs/dataset_configs/custom_dataset_v4.yaml
+    _BASE_CONFIG_: cfgs/dataset_configs/custom_dataset_v4_2.yaml
     # _BASE_CONFIG_: cfgs/dataset_configs/custom_dataset_v3.yaml
     # _BASE_CONFIG_: /home/ailab/git/ailab_ws/src/online_pcdet/src/OpenPCDet/tools/cfgs/dataset_configs/kitti_dataset.yaml
     POINT_CLOUD_RANGE: [-134.4, -134.4, -3, 134.4 ,134.4, 1]
@@ -84,7 +84,7 @@ MODEL:
             {
                 'class_name': 'Car',
                 'anchor_sizes': [[4.64, 1.90, 1.38]],
-                'anchor_rotations': [0, 1.57],
+                'anchor_rotations': [-1.57, 1.57],
                 'anchor_bottom_heights': [-1.78],
                 'align_center': False,
                 'feature_map_stride': 2,

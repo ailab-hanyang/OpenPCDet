@@ -2,16 +2,16 @@ DATASET: 'CustomDataset'
 # DATA_PATH: '../data/custom'
 DATA_PATH: '/home/ailab/AILabDataset/02_Custom_Dataset/18_CARMAKER_Dataset/Detection3D/CustomDatasetV4'
 
-POINT_CLOUD_RANGE: [-44.8, -44.8, -3, 44.8, 44.8, 1]
+POINT_CLOUD_RANGE: [-89.6, -44.8, -3, 89.6 ,44.8, 1]
 
 MAP_CLASS_TO_KITTI: {
     'Car': 'Car'
 }
 
 DATA_SPLIT_SEQUENCE: {
-  'train': ['000', '001', '002', '003', '004', '005'],
-  'test':  ['006'],
-  'eval':  ['003'] # Currently, only one evaluation split is supported
+  'train': ['000', '001', '002', '003', '004', '005', '006', '007'],
+  'test':  ['007'],
+  'eval':  ['007'] # Currently, only one evaluation split is supported
 }
 
 INFO_PATH: {
