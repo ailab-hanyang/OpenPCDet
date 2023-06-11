@@ -98,16 +98,16 @@ def build_pfe(ckpt,cfg):
 
 if __name__ == "__main__":
     from pcdet.config import cfg, cfg_from_yaml_file
-    cfg_file = '/path/to/cbgs_pp_multihead.yaml'
-    filename_mh = "/path/to/pp_multihead_nds5823_updated.pth"
+    cfg_file = '../cfgs/nuscenes_models/cbgs_pp_multihead.yaml'
+    filename_mh = "pretrained/pp_multihead_nds5823_updated.pth"
     cfg_from_yaml_file(cfg_file, cfg)
     model_cfg=cfg.MODEL
     pfe , dummy_input  = build_pfe( filename_mh, cfg)
     pfe.eval().cuda()
-    export_onnx_file = "/path/to/cbgs_pp_multihead_pfe.onnx"
+    export_onnx_file = "pretrained/cbgs_pp_multihead_pfe.onnx"
     torch.onnx.export(pfe,
                     dummy_input,
                     export_onnx_file,
                     opset_version=12,
                     verbose=True,
-                    do_constant_folding=True) # 输出名
+                    do_constant_folding=True) # output names

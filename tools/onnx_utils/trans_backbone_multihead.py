@@ -50,16 +50,16 @@ def build_backbone_multihead(ckpt , cfg ):
 if __name__ == "__main__":
     import numpy as np 
     from pcdet.config import cfg, cfg_from_yaml_file
-    cfg_file = '/home/ailab/Jinsu/04_HMG_AVC/OpenPCDet-hova88/OpenPCDet/tools/cfgs/nuscenes_models/cbgs_pp_multihead.yaml'
-    filename_mh = "/home/ailab/Jinsu/04_HMG_AVC/OpenPCDet-hova88/OpenPCDet/pretrained/pp_multihead_nds5823_updated.pth"
+    cfg_file = '../cfgs/nuscenes_models/cbgs_pp_multihead.yaml'
+    filename_mh = "pretrained/pp_multihead_nds5823_updated.pth"
     cfg_from_yaml_file(cfg_file, cfg)
     model , dummy_input = build_backbone_multihead(filename_mh , cfg )
 
-    export_onnx_file = "/home/ailab/Jinsu/04_HMG_AVC/OpenPCDet-hova88/OpenPCDet/pretrained/cbgs_pp_multihead_backbone.onnx"
+    export_onnx_file = "pretrained/cbgs_pp_multihead_backbone.onnx"
     model.eval().cuda()
     torch.onnx.export(model,
                       dummy_input,
                       export_onnx_file,
                       opset_version=10,
                       verbose=True,
-                      do_constant_folding=True) # 输出名
+                      do_constant_folding=True) # output names

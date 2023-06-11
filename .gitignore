@@ -17,3 +17,4 @@ output
 version.py
 
 .vscode/settings.json
+*.onnx

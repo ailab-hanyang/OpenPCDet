@@ -1,6 +1,29 @@
 import numpy as np
 import torch
 
+def onnx_atan2(y, x):
+    # Create a pi tensor with the same device and data type as y
+    pi = torch.tensor(np.pi, device=y.device, dtype=y.dtype)
+    half_pi = pi / 2
+    eps = 1e-6
+
+    # Compute the arctangent of y/x
+    ans = torch.atan(y / (x + eps))
+
+    # Create boolean tensors representing positive, negative, and zero values of y and x
+    y_positive = y > 0
+    y_negative = y < 0
+    x_negative = x < 0
+    x_zero = x == 0
+
+    # Adjust ans based on the positive, negative, and zero values of y and x
+    ans += torch.where(y_positive & x_negative, pi, torch.zeros_like(ans))  # Quadrants I and II
+    ans -= torch.where(y_negative & x_negative, pi, torch.zeros_like(ans))  # Quadrants III and IV
+    ans = torch.where(y_positive & x_zero, half_pi, ans)  # Positive y-axis
+    ans = torch.where(y_negative & x_zero, -half_pi, ans)  # Negative y-axis
+
+    return ans
+
 
 class ResidualCoder(object):
     def __init__(self, code_size=7, encode_angle_by_sincos=False, **kwargs):
@@ -69,7 +92,7 @@ class ResidualCoder(object):
         if self.encode_angle_by_sincos:
             rg_cos = cost + torch.cos(ra)
             rg_sin = sint + torch.sin(ra)
-            rg = torch.atan2(rg_sin, rg_cos)
+            rg = onnx_atan2(rg_sin, rg_cos)
         else:
             rg = rt + ra
 
@@ -216,7 +239,7 @@ class PointResidualCoder(object):
             zg = zt + za
             dxg, dyg, dzg = torch.split(torch.exp(box_encodings[..., 3:6]), 1, dim=-1)
 
-        rg = torch.atan2(sint, cost)
+        rg = onnx_atan2(sint, cost)
 
         cgs = [t for t in cts]
         return torch.cat([xg, yg, zg, dxg, dyg, dzg, rg, *cgs], dim=-1)
