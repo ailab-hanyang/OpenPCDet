@@ -3,6 +3,7 @@ import pickle
 import os
 
 import numpy as np
+from pathlib import Path
 
 from ...ops.roiaware_pool3d import roiaware_pool3d_utils
 from ...utils import box_utils, common_utils
@@ -22,14 +23,14 @@ class CustomDataset(DatasetTemplate):
         super().__init__(
             dataset_cfg=dataset_cfg, class_names=class_names, training=training, root_path=root_path, logger=logger
         )
-        self.split_seq = self.dataset_cfg.DATA_SPLIT_SEQUENCE[self.mode]
-        self.sample_id_list = list()
-        for split in self.split_seq:
-            split_dir = os.path.join(self.root_path, 'ImageSets', (split + '.txt'))
-            self.sample_id_list += [x.strip() for x in open(split_dir).readlines()] if os.path.exists(split_dir) else None
-        # self.split = self.dataset_cfg.DATA_SPLIT[self.mode]
-        # split_dir = os.path.join(self.root_path, 'ImageSets', (self.split + '.txt'))
-        # self.sample_id_list = [x.strip() for x in open(split_dir).readlines()] if os.path.exists(split_dir) else None
+        # self.split_seq = self.dataset_cfg.DATA_SPLIT_SEQUENCE[self.mode]
+        # self.sample_id_list = list()
+        # for split in self.split_seq:
+        #     split_dir = os.path.join(self.root_path, 'ImageSets', (split + '.txt'))
+        #     self.sample_id_list += [x.strip() for x in open(split_dir).readlines()] if os.path.exists(split_dir) else None
+        self.split = self.dataset_cfg.DATA_SPLIT[self.mode]
+        split_dir = os.path.join(self.root_path, 'ImageSets', (self.split + '.txt'))
+        self.sample_id_list = [x.strip() for x in open(split_dir).readlines()] if os.path.exists(split_dir) else None
 
         self.custom_infos = []
         self.include_data(self.mode)
@@ -40,7 +41,9 @@ class CustomDataset(DatasetTemplate):
         custom_infos = []
 
         for info_path in self.dataset_cfg.INFO_PATH[mode]:
-            info_path = self.root_path / info_path
+            from pathlib import Path
+
+            info_path = Path(self.root_path) / info_path
             if not info_path.exists():
                 continue
             with open(info_path, 'rb') as f:
@@ -51,8 +54,8 @@ class CustomDataset(DatasetTemplate):
         self.logger.info('Total samples for CUSTOM dataset: %d' % (len(custom_infos)))
 
     def get_label(self, idx):
-        label_file = self.root_path / 'labels' / ('%s.txt' % idx)
-        assert label_file.exists()
+        label_file = Path(self.root_path) / 'labels' / ('%s.txt' % idx)
+        # assert label_file.exists()
         with open(label_file, 'r') as f:
             lines = f.readlines()
 
@@ -60,14 +63,15 @@ class CustomDataset(DatasetTemplate):
         gt_boxes = []
         gt_names = []
         for line in lines:
-            line_list = line.strip().split(' ')
+            line_list = line.strip().split(', ') # Robust multisensor
+            # line_list = line.strip().split(' ') # Original
             gt_boxes.append(line_list[:-1])
             gt_names.append(line_list[-1])
 
         return np.array(gt_boxes, dtype=np.float32), np.array(gt_names)
 
     def get_lidar(self, idx):
-        lidar_file = self.root_path / 'points' / ('%s.npy' % idx)
+        lidar_file = Path(self.root_path) / 'points' / ('%s.npy' % idx)
         assert lidar_file.exists()
         point_features = np.load(lidar_file)
         return point_features
@@ -82,13 +86,13 @@ class CustomDataset(DatasetTemplate):
             root_path=self.root_path, logger=self.logger
         )
         self.sample_id_list = list()
-        for split in self.split_seq:
-            split_dir = os.path.join(self.root_path, 'ImageSets', (split + '.txt'))
-            # self.sample_id_list = [x.strip() for x in open(split_dir).readlines()] if os.path.exists(split_dir) else None
-            self.sample_id_list += [x.strip() for x in open(split_dir).readlines()] if os.path.exists(split_dir) else None
+        # for split in self.split_seq:
+        #     split_dir = os.path.join(self.root_path, 'ImageSets', (split + '.txt'))
+        #     # self.sample_id_list = [x.strip() for x in open(split_dir).readlines()] if os.path.exists(split_dir) else None
+        #     self.sample_id_list += [x.strip() for x in open(split_dir).readlines()] if os.path.exists(split_dir) else None
 
-        # split_dir = self.root_path / 'ImageSets' / (self.split + '.txt')
-        # self.sample_id_list = [x.strip() for x in open(split_dir).readlines()] if split_dir.exists() else None
+        split_dir = Path(self.root_path) / 'ImageSets' / (self.split + '.txt')
+        self.sample_id_list = [x.strip() for x in open(split_dir).readlines()] if split_dir.exists() else None
 
     def __len__(self):
         if self._merge_all_iters_to_one_epoch:
@@ -254,8 +258,8 @@ def create_custom_infos(dataset_cfg, class_names, data_path, save_path, workers=
     train_split, val_split = 'train', 'val'
     num_features = len(dataset_cfg.POINT_FEATURE_ENCODING.src_feature_list)
 
-    train_filename = save_path / ('custom_infos_%s.pkl' % train_split)
-    val_filename = save_path / ('custom_infos_%s.pkl' % val_split)
+    train_filename = Path(save_path) / ('custom_infos_%s.pkl' % train_split)
+    val_filename = Path(save_path) / ('custom_infos_%s.pkl' % val_split)
 
     print('------------------------Start to generate data infos------------------------')
 
@@ -293,7 +297,7 @@ if __name__ == '__main__':
         ROOT_DIR = (Path(__file__).resolve().parent / '../../../').resolve()
         create_custom_infos(
             dataset_cfg=dataset_cfg,
-            class_names=['Car'],
-            data_path=Path(dataset_cfg.DATA_PATH),
-            save_path=Path(dataset_cfg.DATA_PATH)
+            class_names=["car", "truck", "pedestrian", "bicycle"], # TODO
+            data_path= dataset_cfg.DATA_PATH,
+            save_path= dataset_cfg.DATA_PATH,
         )

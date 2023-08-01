@@ -7,6 +7,7 @@ from skimage import io
 import torch
 import SharedArray
 import torch.distributed as dist
+from pathlib import Path
 
 from ...ops.iou3d_nms import iou3d_nms_utils
 from ...utils import box_utils, common_utils, calibration_kitti
@@ -29,7 +30,7 @@ class DataBaseSampler(object):
         self.use_shared_memory = sampler_cfg.get('USE_SHARED_MEMORY', False)
 
         for db_info_path in sampler_cfg.DB_INFO_PATH:
-            db_info_path = self.root_path.resolve() / db_info_path
+            db_info_path = Path(self.root_path).resolve() / db_info_path
             if not db_info_path.exists():
                 assert len(sampler_cfg.DB_INFO_PATH) == 1
                 sampler_cfg.DB_INFO_PATH[0] = sampler_cfg.BACKUP_DB_INFO['DB_INFO_PATH']
@@ -178,24 +179,24 @@ class DataBaseSampler(object):
             paste_order = boxes3d[:,0].argsort()
             paste_order = paste_order[::-1]
         else:
-            paste_order = np.arange(len(boxes3d),dtype=np.int)
+            paste_order = np.arange(len(boxes3d),dtype=np.int64)
 
         if 'reverse' in kitti_img_aug_type:
             paste_order = paste_order[::-1]
 
-        paste_mask = -255 * np.ones(image.shape[:2], dtype=np.int)
-        fg_mask = np.zeros(image.shape[:2], dtype=np.int)
-        overlap_mask = np.zeros(image.shape[:2], dtype=np.int)
+        paste_mask = -255 * np.ones(image.shape[:2], dtype=np.int64)
+        fg_mask = np.zeros(image.shape[:2], dtype=np.int64)
+        overlap_mask = np.zeros(image.shape[:2], dtype=np.int64)
         depth_mask = np.zeros((*image.shape[:2], 2), dtype=np.float)
         points_2d, depth_2d = data_dict['calib'].lidar_to_img(data_dict['points'][:,:3])
         points_2d[:,0] = np.clip(points_2d[:,0], a_min=0, a_max=image.shape[1]-1)
         points_2d[:,1] = np.clip(points_2d[:,1], a_min=0, a_max=image.shape[0]-1)
-        points_2d = points_2d.astype(np.int)
+        points_2d = points_2d.astype(np.int64)
         for _order in paste_order:
             _box2d = boxes2d[_order]
             image[_box2d[1]:_box2d[3],_box2d[0]:_box2d[2]] = crop_feat[_order]
             overlap_mask[_box2d[1]:_box2d[3],_box2d[0]:_box2d[2]] += \
-                (paste_mask[_box2d[1]:_box2d[3],_box2d[0]:_box2d[2]] > 0).astype(np.int)
+                (paste_mask[_box2d[1]:_box2d[3],_box2d[0]:_box2d[2]] > 0).astype(np.int64)
             paste_mask[_box2d[1]:_box2d[3],_box2d[0]:_box2d[2]] = _order
 
             if 'cover' in kitti_img_aug_use_type:
@@ -255,22 +256,22 @@ class DataBaseSampler(object):
             sampled_gt_boxes[idx] = box3d_lidar[0]
             sampled_gt_boxes2d[idx] = box2d[0]
 
-        obj_idx = idx * np.ones(len(obj_points), dtype=np.int)
+        obj_idx = idx * np.ones(len(obj_points), dtype=np.int64)
 
         # copy crops from images
         img_path = self.root_path /  f'training/image_2/{info["image_idx"]}.png'
         raw_image = io.imread(img_path)
         raw_image = raw_image.astype(np.float32)
         raw_center = info['bbox'].reshape(2,2).mean(0)
-        new_box = sampled_gt_boxes2d[idx].astype(np.int)
+        new_box = sampled_gt_boxes2d[idx].astype(np.int64)
         new_shape = np.array([new_box[2]-new_box[0], new_box[3]-new_box[1]])
-        raw_box = np.concatenate([raw_center-new_shape/2, raw_center+new_shape/2]).astype(np.int)
+        raw_box = np.concatenate([raw_center-new_shape/2, raw_center+new_shape/2]).astype(np.int64)
         raw_box[0::2] = np.clip(raw_box[0::2], a_min=0, a_max=raw_image.shape[1])
         raw_box[1::2] = np.clip(raw_box[1::2], a_min=0, a_max=raw_image.shape[0])
         if (raw_box[2]-raw_box[0])!=new_shape[0] or (raw_box[3]-raw_box[1])!=new_shape[1]:
             new_center = new_box.reshape(2,2).mean(0)
             new_shape = np.array([raw_box[2]-raw_box[0], raw_box[3]-raw_box[1]])
-            new_box = np.concatenate([new_center-new_shape/2, new_center+new_shape/2]).astype(np.int)
+            new_box = np.concatenate([new_center-new_shape/2, new_center+new_shape/2]).astype(np.int64)
 
         img_crop2d = raw_image[raw_box[1]:raw_box[3],raw_box[0]:raw_box[2]] / 255
 
@@ -320,8 +321,8 @@ class DataBaseSampler(object):
             pass
         elif self.img_aug_type == 'kitti':
             obj_index_list, crop_boxes2d = [], []
-            gt_number = gt_boxes_mask.sum().astype(np.int)
-            gt_boxes2d = data_dict['gt_boxes2d'][gt_boxes_mask].astype(np.int)
+            gt_number = gt_boxes_mask.sum().astype(np.int64)
+            gt_boxes2d = data_dict['gt_boxes2d'][gt_boxes_mask].astype(np.int64)
             gt_crops2d = [data_dict['images'][_x[1]:_x[3],_x[0]:_x[2]] for _x in gt_boxes2d]
 
             img_aug_gt_dict = {
@@ -351,7 +352,7 @@ class DataBaseSampler(object):
     def copy_paste_to_image(self, img_aug_gt_dict, data_dict, points):
         if self.img_aug_type == 'kitti':
             obj_points_idx = np.concatenate(img_aug_gt_dict['obj_index_list'], axis=0)
-            point_idxes = -1 * np.ones(len(points), dtype=np.int)
+            point_idxes = -1 * np.ones(len(points), dtype=np.int64)
             point_idxes[:obj_points_idx.shape[0]] = obj_points_idx
 
             data_dict['gt_boxes2d'] = np.concatenate([img_aug_gt_dict['gt_boxes2d'], np.array(img_aug_gt_dict['crop_boxes2d'])], axis=0)

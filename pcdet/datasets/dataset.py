@@ -196,6 +196,13 @@ class DatasetTemplate(torch_data.Dataset):
             data_dict['gt_boxes'] = data_dict['gt_boxes'][selected]
             data_dict['gt_names'] = data_dict['gt_names'][selected]
             gt_classes = np.array([self.class_names.index(n) + 1 for n in data_dict['gt_names']], dtype=np.int32)
+        
+            if len(data_dict) == 0:
+                print(gt_classes, data_dict)
+                raise("datat_dict len 0 !!")
+            if len(gt_classes) == 0:
+                print(gt_classes, data_dict)
+                raise("gt classes len 0 !!")
             gt_boxes = np.concatenate((data_dict['gt_boxes'], gt_classes.reshape(-1, 1).astype(np.float32)), axis=1)
             data_dict['gt_boxes'] = gt_boxes
 
