@@ -69,13 +69,23 @@ class ResidualCoder(object):
         if self.encode_angle_by_sincos:
             rg_cos = cost + torch.cos(ra)
             rg_sin = sint + torch.sin(ra)
-            rg = torch.atan2(rg_sin, rg_cos)
+            rg = self.atan2(rg_sin, rg_cos)
         else:
             rg = rt + ra
 
         cgs = [t + a for t, a in zip(cts, cas)]
         return torch.cat([xg, yg, zg, dxg, dyg, dzg, rg, *cgs], dim=-1)
-
+    
+    def atan2(self, y, x):
+        pi = torch.from_numpy(np.array([np.pi])).to(y.device, y.dtype)
+        ans = torch.atan(y / (x + 1e-6))
+        ans += ((y > 0) & (x < 0)) * pi
+        ans -= ((y < 0) & (x < 0)) * pi
+        ans *= (1 - ((y > 0) & (x == 0)) * 1.0)
+        ans += ((y > 0) & (x == 0)) * (pi / 2)
+        ans *= (1 - ((y < 0) & (x == 0)) * 1.0)
+        ans += ((y < 0) & (x == 0)) * (-pi / 2)
+        return ans
 
 class PreviousResidualDecoder(object):
     def __init__(self, code_size=7, **kwargs):
@@ -216,7 +226,7 @@ class PointResidualCoder(object):
             zg = zt + za
             dxg, dyg, dzg = torch.split(torch.exp(box_encodings[..., 3:6]), 1, dim=-1)
 
-        rg = torch.atan2(sint, cost)
+        rg = self.atan2(sint, cost)
 
         cgs = [t for t in cts]
         return torch.cat([xg, yg, zg, dxg, dyg, dzg, rg, *cgs], dim=-1)
