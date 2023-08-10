@@ -1,21 +1,29 @@
+# Yaml file analysis = data type + description for each parameter
+
+# list of strings, 데이터셋 내 모든 클래스 이름 목록
 CLASS_NAMES: ['car','truck', 'construction_vehicle', 'bus', 'trailer',
               'barrier', 'motorcycle', 'bicycle', 'pedestrian', 'traffic_cone']
 
+# collection, pointpillar 모델의 training, val/test를 위한 데이터셋(Nuscenes) config 정의
 DATA_CONFIG:
     # _BASE_CONFIG_: cfgs/dataset_configs/nuscenes_dataset.yaml
     _BASE_CONFIG_: /home/ailab/git/ailab_ws/src/online_pcdet/src/OpenPCDet/tools/cfgs/dataset_configs/nuscenes_dataset.yaml
-
+    
+    # list of floats, 실제 학습/검증/추론에 사용할 포인트클라우드의 범위 (NAME은 반드시 고정)
     POINT_CLOUD_RANGE: [-51.2, -51.2, -5.0, 51.2, 51.2, 3.0]
     DATA_PROCESSOR:
+            # string & bool, 범위 밖 포인트 클라우드 사용 여부
         -   NAME: mask_points_and_boxes_outside_range
             REMOVE_OUTSIDE_BOXES: True
 
+            # string & dict, 
         -   NAME: shuffle_points
             SHUFFLE_ENABLED: {
                 'train': True,
                 'test': True
             }
 
+            # string & list of floats & int & dict, 포인트 클라우드 복셀화 관련 설정
         -   NAME: transform_points_to_voxels
             VOXEL_SIZE: [0.2, 0.2, 8.0]
             MAX_POINTS_PER_VOXEL: 20
@@ -25,37 +33,55 @@ DATA_CONFIG:
             }
 
 MODEL:
+    # string, 모델의 이름
     NAME: PointPillar
 
+    # collection, 모델의 voxel feature extractor 설정(backbone)
     VFE:
+        # string & bool & bool & bool & list of int
+        # pointpillar의 voxel feature extractor는 PillarFeatureNet으로 고정
         NAME: PillarVFE
         WITH_DISTANCE: False
         USE_ABSLOTE_XYZ: True
         USE_NORM: True
         NUM_FILTERS: [64]
 
+    # collection, 모델의 scatter 설정
     MAP_TO_BEV:
         NAME: PointPillarScatter
         NUM_BEV_FEATURES: 64
 
+    # collection, 모델의 2d backbone 정의
     BACKBONE_2D:
+        # pointpillar의 2d backbone은 BaseBEVBackbone으로 고정
         NAME: BaseBEVBackbone
+        # 2D conv를 진행할 때의 layer 수
         LAYER_NUMS: [3, 5, 5]
+        # 2D conv를 진행할 때의 stride 크기
         LAYER_STRIDES: [2, 2, 2]
+        # 2D conv를 진행할 때의 channel 수
         NUM_FILTERS: [64, 128, 256]
+        # 2d upconv를 진행할때의 stride 크기
         UPSAMPLE_STRIDES: [0.5, 1, 2]
+        # 2d upconv를 진행할때의 filter 수
         NUM_UPSAMPLE_FILTERS: [128, 128, 128]
 
-    DENSE_HEAD:
+    # collection, 모델의 head 구조 정의
+    DENSE_HEAD: 
+        # string, 모델의 head 구조 이름
         NAME: AnchorHeadMulti
+        # bool, 클래스 라벨을 미구분하고 단순히 BBOX만 검출하는 여부
         CLASS_AGNOSTIC: False
-
+        # float, 
         DIR_OFFSET: 0.78539
         DIR_LIMIT_OFFSET: 0.0
+        # int,
         NUM_DIR_BINS: 2
-
+        # bool,
         USE_MULTIHEAD: True
+        # bool,
         SEPARATE_MULTIHEAD: True
+        # list of dict, anchor generator를 class 별로 설정
         ANCHOR_GENERATOR_CONFIG: [
             {
                 'class_name': car,
@@ -159,7 +185,6 @@ MODEL:
             },
         ]
 
-        SHARED_CONV_NUM_FILTER: 64
 
         RPN_HEAD_CFGS: [
             {
@@ -198,7 +223,7 @@ MODEL:
                 'encode_angle_by_sincos': True
             }
 
-
+        # collection, loss fucntion에 대한 config 설정
         LOSS_CONFIG:
             REG_LOSS_TYPE: WeightedL1Loss
             LOSS_WEIGHTS: {
@@ -210,6 +235,7 @@ MODEL:
                 'code_weights': [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.2, 0.2]
             }
 
+    # POST_PROCESSING에 대한 config 설정
     POST_PROCESSING:
         RECALL_THRESH_LIST: [0.3, 0.5, 0.7]
         SCORE_THRESH: 0.1
@@ -218,30 +244,52 @@ MODEL:
         EVAL_METRIC: kitti
 
         NMS_CONFIG:
+            # 모든 클래스에서 가장 좋은 BBOX 예측 고려 여부
             MULTI_CLASSES_NMS: True
+            # NMS 종류, nms_gpu, nms_cpu, nms_py 존재
             NMS_TYPE: nms_gpu
+            # NMS 시 IoU threshold
             NMS_THRESH: 0.2
+            # NMS 박스의 maximum 개수
             NMS_PRE_MAXSIZE: 1000
+            # NMS 후 최종 박스의 maximum 개수
             NMS_POST_MAXSIZE: 83
 
-
+# training 과정에서 설정할 수 있는 hyperparameter
 OPTIMIZATION:
+    # GPU 당 batch size
     BATCH_SIZE_PER_GPU: 4
+    # training 시 epoch 수
     NUM_EPOCHS: 20
 
+    # optimizer 종류
     OPTIMIZER: adam_onecycle
+    # learning rate 설정
     LR: 0.001
+    # weight decay 설정
     WEIGHT_DECAY: 0.01
+    # SGD Optimizer momentum 설정
     MOMENTUM: 0.9
 
+    # 시작, 끝 모멘텀 설정(초반에는 큰 모멘텀 값을 사용하여 모델 수렴을 빠르게 하고, 
+    # 후반에는 작은 모멘텀 값을 사용하여 최적값에 안정적으로 수렴하도록 함)
     MOMS: [0.95, 0.85]
+    # 선형 학습 워밍업에서 언제 학습률 증가를 시작할지 설정
     PCT_START: 0.4
+    # learning rate 감소 factor 설정 (lr = lr / DIV_FACTOR)
     DIV_FACTOR: 10
-    DECAY_STEP_LIST: [35, 45]
-    LR_DECAY: 0.1
-    LR_CLIP: 0.0000001
 
+    # learning rate decay를 진행할 epoch 설정
+    DECAY_STEP_LIST: [35, 45]
+    # learning rate는 0.1씩 감소
+    LR_DECAY: 0.1
+    # learning rate 최소값
+    LR_CLIP: 0.0000001
+    # lr warmup 설정, warmup은 초기에는 작은 learning rate로 시작하여 점점 증가시키고 
+    # 안정화 시킬 때에는 일반적인 learning rate(다시 감소)로 돌아오는 것을 의미
     LR_WARMUP: False
+    # warmup을 얼마나 할지 설정
     WARMUP_EPOCH: 1
 
+    # gradient max clipping 설정(gradients가 10보다 크면 10으로 clipping)
     GRAD_NORM_CLIP: 10
