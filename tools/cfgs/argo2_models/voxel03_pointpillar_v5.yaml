@@ -2,7 +2,7 @@ CLASS_NAMES: ['Regular_vehicle']
 
 DATA_CONFIG: 
     _BASE_CONFIG_: cfgs/dataset_configs/argo2_dataset_v1.yaml
-    POINT_CLOUD_RANGE: [-100, -100, -10, 100, 100, 10]
+    POINT_CLOUD_RANGE: [-90.0, -45.6, -10, 90.0, 45.6, 10]
     DATA_PROCESSOR:
         - NAME: mask_points_and_boxes_outside_range
           REMOVE_OUTSIDE_BOXES: True
@@ -14,11 +14,11 @@ DATA_CONFIG:
           }
 
         - NAME: transform_points_to_voxels
-          VOXEL_SIZE: [0.2, 0.2, 20.0]
-          MAX_POINTS_PER_VOXEL: 5
+          VOXEL_SIZE: [0.3, 0.3, 20.0]
+          MAX_POINTS_PER_VOXEL: 32
           MAX_NUMBER_OF_VOXELS: {
-            'train': 160000,
-            'test': 400000
+            'train': 16000,
+            'test': 40000
           }
     DATA_AUGMENTOR:
         DISABLE_AUG_LIST: ['placeholder']
@@ -82,7 +82,7 @@ MODEL:
             {
                 'class_name': 'Regular_vehicle',
                 'anchor_sizes': [[4.64, 1.90, 1.38]],
-                'anchor_rotations': [-1.57, 1.57],
+                'anchor_rotations': [0.0, 0.523, 1.047, 1.57],
                 'anchor_bottom_heights': [-1.78],
                 'align_center': False,
                 'feature_map_stride': 2,
@@ -125,7 +125,7 @@ MODEL:
                 'cls_weight': 1.0,
                 'loc_weight': 2.0,
                 # 'dir_weight': 0.2,
-                'dir_weight': 0.6, # Increase dir weight
+                'dir_weight': 0.4, # Increase dir weight (v2)
                 'code_weights': [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
             }
 
@@ -145,8 +145,8 @@ MODEL:
 
 
 OPTIMIZATION:
-    BATCH_SIZE_PER_GPU: 4
-    NUM_EPOCHS: 100
+    BATCH_SIZE_PER_GPU: 16
+    NUM_EPOCHS: 200
 
     OPTIMIZER: adam_onecycle
     LR: 0.003
