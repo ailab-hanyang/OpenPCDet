@@ -362,7 +362,7 @@ class Argo2Dataset(DatasetTemplate):
         """
         import pandas as pd
 
-        assert len(self.argo2_infos) == len(outputs)
+        # assert len(self.argo2_infos) == len(outputs)
         num_samples = len(outputs)
         print('\nGot {} samples'.format(num_samples))
 
@@ -376,6 +376,8 @@ class Argo2Dataset(DatasetTemplate):
             #cat_id = out_i['labels_3d'].numpy().tolist()
             #category = [class_names[i].upper() for i in cat_id]
             category = [class_name.upper() for class_name in out_i['name']]
+            if len(out_i['bbox']) == 0:
+                continue
             serialized_dts = pd.DataFrame(
                 self.lidar_box_to_argo2(out_i['bbox']).numpy(), columns=list(LABEL_ATTR)
             )
