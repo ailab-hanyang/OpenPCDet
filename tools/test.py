@@ -36,7 +36,7 @@ def parse_config():
     parser.add_argument('--max_waiting_mins', type=int, default=30, help='max waiting minutes')
     parser.add_argument('--start_epoch', type=int, default=0, help='')
     parser.add_argument('--eval_tag', type=str, default='default', help='eval tag for this experiment')
-    parser.add_argument('--eval_all', action='store_true', default=False, help='whether to evaluate all checkpoints')
+    parser.add_argument('--eval_all', action='store_true', default=True, help='whether to evaluate all checkpoints')
     parser.add_argument('--ckpt_dir', type=str, default=None, help='specify a ckpt directory to be evaluated if needed')
     parser.add_argument('--save_to_file', action='store_true', default=False, help='')
     parser.add_argument('--infer_time', action='store_true', default=False, help='calculate inference latency')
@@ -126,8 +126,15 @@ def repeat_eval_ckpt(model, test_loader, args, eval_output_dir, logger, ckpt_dir
         )
 
         if cfg.LOCAL_RANK == 0:
-            for key, val in tb_dict.items():
-                tb_log.add_scalar(key, val, cur_epoch_id)
+            if tb_dict['REGULAR_VEHICLE']is not None: # Evaluate only REGULAR_VEHICLE
+                val = tb_dict['REGULAR_VEHICLE'] 
+                import json
+                sub_dict = json.loads(val)
+                for key, val in sub_dict.items():
+                    tb_log.add_scalar(key, val, cur_epoch_id)
+            else:
+                for key, val in tb_dict.items():
+                    tb_log.add_scalar(key, val, cur_epoch_id)
 
         # record this epoch which has been evaluated
         with open(ckpt_record_file, 'a') as f:
