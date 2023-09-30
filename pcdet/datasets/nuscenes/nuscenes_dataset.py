@@ -14,7 +14,7 @@ from PIL import Image
 
 class NuScenesDataset(DatasetTemplate):
     def __init__(self, dataset_cfg, class_names, training=True, root_path=None, logger=None):
-        root_path = (root_path if root_path is not None else Path(dataset_cfg.DATA_PATH)) / dataset_cfg.VERSION
+        root_path = (root_path if root_path is not None else Path(dataset_cfg.DATA_PATH)) #/ dataset_cfg.VERSION
         super().__init__(
             dataset_cfg=dataset_cfg, class_names=class_names, training=training, root_path=root_path, logger=logger
         )
@@ -41,6 +41,10 @@ class NuScenesDataset(DatasetTemplate):
             with open(info_path, 'rb') as f:
                 infos = pickle.load(f)
                 nuscenes_infos.extend(infos)
+                for info in infos:
+                    if (len(info['gt_names']) == 0):
+                        print(info['gt_names'])
+        exit()
 
         self.infos.extend(nuscenes_infos)
         self.logger.info('Total samples for NuScenes dataset: %d' % (len(nuscenes_infos)))
@@ -426,7 +430,7 @@ if __name__ == '__main__':
 
         nuscenes_dataset = NuScenesDataset(
             dataset_cfg=dataset_cfg, class_names=None,
-            root_path=ROOT_DIR / 'data' / 'nuscenes',
+            root_path=Path(dataset_cfg.DATA_PATH),
             logger=common_utils.create_logger(), training=True
         )
         nuscenes_dataset.create_groundtruth_database(max_sweeps=dataset_cfg.MAX_SWEEPS)

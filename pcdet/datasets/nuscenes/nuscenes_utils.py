@@ -437,6 +437,13 @@ def fill_trainval_infos(data_path, nusc, train_scenes, val_scenes, test=False, m
         if not test:
             annotations = [nusc.get('sample_annotation', token) for token in sample['anns']]
 
+            # Skip samples without 'car' class
+            annotations = [anno for anno in annotations if anno['category_name'] == 'vehicle.car']
+            ref_boxes = [boxes for boxes in ref_boxes if boxes.name == 'vehicle.car']
+            if len(annotations) == 0 or len(ref_boxes) == 0:
+                print("Skip!")
+                continue  # Skip
+
             # the filtering gives 0.5~1 map improvement
             num_lidar_pts = np.array([anno['num_lidar_pts'] for anno in annotations])
             num_radar_pts = np.array([anno['num_radar_pts'] for anno in annotations])
@@ -449,6 +456,10 @@ def fill_trainval_infos(data_path, nusc, train_scenes, val_scenes, test=False, m
             names = np.array([b.name for b in ref_boxes])
             tokens = np.array([b.token for b in ref_boxes])
             gt_boxes = np.concatenate([locs, dims, rots, velocity[:, :2]], axis=1)
+
+            # if (len(gt_boxes) == 0 ):
+            #     print("No GT in frame")
+            #     break
 
             assert len(annotations) == len(gt_boxes) == len(velocity)
 
