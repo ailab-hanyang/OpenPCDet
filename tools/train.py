@@ -22,7 +22,7 @@ def parse_config():
     parser = argparse.ArgumentParser(description='arg parser')
     parser.add_argument('--cfg_file', type=str, default=None, help='specify the config for training')
     parser.add_argument('--output_dir', type=str, default='/home/ailab/AILabDataset/03_Shared_Repository/jinsu/03_HMG_AVC/OpenPCDet/Real',
-                         help='specify the output save directory')
+                         help='specify the output save directory (Default: NAS)')
 
     parser.add_argument('--batch_size', type=int, default=None, required=False, help='batch size for training')
     parser.add_argument('--epochs', type=int, default=None, required=False, help='number of epochs to train for')
