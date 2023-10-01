@@ -220,8 +220,10 @@ class Argo2Dataset(DatasetTemplate):
     def get_lidar(self, idx):
         lidar_file = self.root_split_path / 'velodyne' / ('%s.bin' % idx)
         assert lidar_file.exists()
-        return np.fromfile(str(lidar_file), dtype=np.float32).reshape(-1, 4)
-
+        lidar = np.fromfile(str(lidar_file), dtype=np.float32).reshape(-1, 4)
+        # lidar_noground = lidar[np.where(lidar[:, 2] > -0.3)]
+        return lidar
+        # return lidar_noground
     @staticmethod
     def generate_prediction_dicts(batch_dict, pred_dicts, class_names, output_path=None):
         """
