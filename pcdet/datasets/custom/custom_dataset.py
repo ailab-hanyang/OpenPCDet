@@ -23,14 +23,14 @@ class CustomDataset(DatasetTemplate):
         super().__init__(
             dataset_cfg=dataset_cfg, class_names=class_names, training=training, root_path=root_path, logger=logger
         )
-        # self.split_seq = self.dataset_cfg.DATA_SPLIT_SEQUENCE[self.mode]
-        # self.sample_id_list = list()
-        # for split in self.split_seq:
-        #     split_dir = os.path.join(self.root_path, 'ImageSets', (split + '.txt'))
-        #     self.sample_id_list += [x.strip() for x in open(split_dir).readlines()] if os.path.exists(split_dir) else None
-        self.split = self.dataset_cfg.DATA_SPLIT[self.mode]
-        split_dir = os.path.join(self.root_path, 'ImageSets', (self.split + '.txt'))
-        self.sample_id_list = [x.strip() for x in open(split_dir).readlines()] if os.path.exists(split_dir) else None
+        self.split_seq = self.dataset_cfg.DATA_SPLIT_SEQUENCE[self.mode]
+        self.sample_id_list = list()
+        for split in self.split_seq:
+            split_dir = os.path.join(self.root_path, 'ImageSets', (split + '.txt'))
+            self.sample_id_list += [x.strip() for x in open(split_dir).readlines()] if os.path.exists(split_dir) else None
+        # self.split = self.dataset_cfg.DATA_SPLIT[self.mode]
+        # split_dir = os.path.join(self.root_path, 'ImageSets', (self.split + '.txt'))
+        # self.sample_id_list = [x.strip() for x in open(split_dir).readlines()] if os.path.exists(split_dir) else None
 
         self.custom_infos = []
         self.include_data(self.mode)
@@ -63,8 +63,8 @@ class CustomDataset(DatasetTemplate):
         gt_boxes = []
         gt_names = []
         for line in lines:
-            line_list = line.strip().split(', ') # Robust multisensor
-            # line_list = line.strip().split(' ') # Original
+            # line_list = line.strip().split(', ') # Robust multisensor
+            line_list = line.strip().split(' ') # Original
             gt_boxes.append(line_list[:-1])
             gt_names.append(line_list[-1])
 
@@ -86,13 +86,13 @@ class CustomDataset(DatasetTemplate):
             root_path=self.root_path, logger=self.logger
         )
         self.sample_id_list = list()
-        # for split in self.split_seq:
-        #     split_dir = os.path.join(self.root_path, 'ImageSets', (split + '.txt'))
-        #     # self.sample_id_list = [x.strip() for x in open(split_dir).readlines()] if os.path.exists(split_dir) else None
-        #     self.sample_id_list += [x.strip() for x in open(split_dir).readlines()] if os.path.exists(split_dir) else None
+        for split in self.split_seq:
+            split_dir = os.path.join(self.root_path, 'ImageSets', (split + '.txt'))
+            # self.sample_id_list = [x.strip() for x in open(split_dir).readlines()] if os.path.exists(split_dir) else None
+            self.sample_id_list += [x.strip() for x in open(split_dir).readlines()] if os.path.exists(split_dir) else None
 
-        split_dir = Path(self.root_path) / 'ImageSets' / (self.split + '.txt')
-        self.sample_id_list = [x.strip() for x in open(split_dir).readlines()] if split_dir.exists() else None
+        # split_dir = Path(self.root_path) / 'ImageSets' / (self.split + '.txt')
+        # self.sample_id_list = [x.strip() for x in open(split_dir).readlines()] if split_dir.exists() else None
 
     def __len__(self):
         if self._merge_all_iters_to_one_epoch:
@@ -297,7 +297,8 @@ if __name__ == '__main__':
         ROOT_DIR = (Path(__file__).resolve().parent / '../../../').resolve()
         create_custom_infos(
             dataset_cfg=dataset_cfg,
-            class_names=["car", "truck", "pedestrian", "bicycle"], # TODO
+            # class_names=["car", "truck", "pedestrian", "bicycle"], # TODO
+            class_names=["Regular_vehicle"], # TODO
             data_path= dataset_cfg.DATA_PATH,
             save_path= dataset_cfg.DATA_PATH,
         )
