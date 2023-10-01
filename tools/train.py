@@ -91,7 +91,7 @@ def main():
 
     # output_dir = cfg.ROOT_DIR / 'output' / cfg.EXP_GROUP_PATH / cfg.TAG / args.extra_tag
     # Save NAS directly
-    output_dir = cfg.OUTPUT_DIR / cfg.EXP_GROUP_PATH / cfg.TAG / args.extra_tag
+    output_dir = Path(args.output_dir) / cfg.EXP_GROUP_PATH / cfg.TAG / args.extra_tag
     ckpt_dir = output_dir / 'ckpt'
     output_dir.mkdir(parents=True, exist_ok=True)
     ckpt_dir.mkdir(parents=True, exist_ok=True)
