@@ -1,7 +1,9 @@
-DATASET: 'Argo2Dataset'
-DATA_PATH: '/home/ailab/AILabDataset/01_Open_Dataset/24_Argoverse2/OpenPCDet'
+CLASS_NAMES: ['Regular_vehicle']  
 
-POINT_CLOUD_RANGE: [-200, -200, -20, 200, 200, 20]
+DATASET: 'CustomDataset'
+DATA_PATH: '/home/ailab/AILabDataset/02_Custom_Dataset/21_RSCube_Dataset/V1/Processed'
+
+POINT_CLOUD_RANGE: [-100, -50.4, -10, 100, 50.4, 10]
 
 MAP_CLASS_TO_KITTI: {
     'Regular_vehicle': 'Car'
@@ -11,13 +13,21 @@ DATA_SPLIT: {
     'train': train,
     'test': val
 }
-
-INFO_PATH: {
-    'train': [argo2_infos_train.pkl],
-    'test': [argo2_infos_val.pkl],
+DATA_SPLIT_SEQUENCE: {
+    'train': ['01', '02', '03', '04', '05'],
+    'test':  ['06']
 }
 
-GET_ITEM_LIST: ["points"]
+INFO_PATH: {
+    'train': [custom_infos_train.pkl],
+    'test': [custom_infos_val.pkl],
+}
+
+POINT_FEATURE_ENCODING: {
+    encoding_type: absolute_coordinates_encoding,
+    used_feature_list: ['x', 'y', 'z', 'intensity'],
+    src_feature_list: ['x', 'y', 'z', 'intensity'],
+}
 
 DATA_AUGMENTOR:
     DISABLE_AUG_LIST: ['placeholder']
@@ -33,13 +43,6 @@ DATA_AUGMENTOR:
           WORLD_SCALE_RANGE: [0.95, 1.05]
 
 
-POINT_FEATURE_ENCODING: {
-    encoding_type: absolute_coordinates_encoding,
-    used_feature_list: ['x', 'y', 'z', 'intensity'],
-    src_feature_list: ['x', 'y', 'z', 'intensity'],
-}
-
-
 DATA_PROCESSOR:
     - NAME: mask_points_and_boxes_outside_range
       REMOVE_OUTSIDE_BOXES: True
@@ -52,10 +55,10 @@ DATA_PROCESSOR:
 
     - NAME: transform_points_to_voxels
       # VOXEL_SIZE: [0.1, 0.1, 0.2] # voxel01
-      # VOXEL_SIZE: [0.2, 0.2, 0.2] # voxel02
-      VOXEL_SIZE: [0.4, 0.4, 40.0] # voxel04
-      MAX_POINTS_PER_VOXEL: 5
+      VOXEL_SIZE: [0.2, 0.2, 0.2] # voxel02
+      # VOXEL_SIZE: [0.4, 0.4, 40.0] # voxel04
+      MAX_POINTS_PER_VOXEL: 32
       MAX_NUMBER_OF_VOXELS: {
-        'train': 160000,
-        'test': 400000
+        'train': 16000,
+        'test': 40000
       }
