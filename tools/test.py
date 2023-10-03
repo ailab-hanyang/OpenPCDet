@@ -21,7 +21,9 @@ from pcdet.utils import common_utils
 def parse_config():
     parser = argparse.ArgumentParser(description='arg parser')
     parser.add_argument('--cfg_file', type=str, default=None, help='specify the config for training')
-
+    parser.add_argument('--output_dir', type=str, default='/home/ailab/AILabDataset/03_Shared_Repository/jinsu/03_HMG_AVC/OpenPCDet/Real',
+                         help='specify the output save directory (Default: NAS)')
+    
     parser.add_argument('--batch_size', type=int, default=None, required=False, help='batch size for training')
     parser.add_argument('--workers', type=int, default=4, help='number of workers for dataloader')
     parser.add_argument('--extra_tag', type=str, default='default', help='extra tag for this experiment')
@@ -163,7 +165,9 @@ def main():
         assert args.batch_size % total_gpus == 0, 'Batch size should match the number of gpus'
         args.batch_size = args.batch_size // total_gpus
 
-    output_dir = cfg.ROOT_DIR / 'output' / cfg.EXP_GROUP_PATH / cfg.TAG / args.extra_tag
+    # output_dir = cfg.ROOT_DIR / 'output' / cfg.EXP_GROUP_PATH / cfg.TAG / args.extra_tag
+    # Save NAS directly
+    output_dir = Path(args.output_dir) / cfg.EXP_GROUP_PATH / cfg.TAG / args.extra_tag
     output_dir.mkdir(parents=True, exist_ok=True)
 
     eval_output_dir = output_dir / 'eval'
