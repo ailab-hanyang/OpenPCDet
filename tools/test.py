@@ -128,7 +128,8 @@ def repeat_eval_ckpt(model, test_loader, args, eval_output_dir, logger, ckpt_dir
         )
 
         if cfg.LOCAL_RANK == 0:
-            if tb_dict['REGULAR_VEHICLE']is not None: # Evaluate only REGULAR_VEHICLE
+            if cfg.DATA_CONFIG.DATASET == 'Argo2Dataset':
+                # if tb_dict['REGULAR_VEHICLE']is not None: # Evaluate only REGULAR_VEHICLE
                 val = tb_dict['REGULAR_VEHICLE'] 
                 import json
                 sub_dict = json.loads(val)
