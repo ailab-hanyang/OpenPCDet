@@ -133,9 +133,8 @@ class CustomDataset(DatasetTemplate):
         def kitti_eval(eval_det_annos, eval_gt_annos, map_name_to_kitti):
             from ..kitti.kitti_object_eval_python import eval as kitti_eval
             from ..kitti import kitti_utils
-
-            kitti_utils.transform_annotations_to_kitti_format(eval_det_annos, map_name_to_kitti=map_name_to_kitti)
-            kitti_utils.transform_annotations_to_kitti_format(
+            eval_det_annos = kitti_utils.transform_annotations_to_kitti_format(eval_det_annos, map_name_to_kitti=map_name_to_kitti)
+            eval_gt_annos = kitti_utils.transform_annotations_to_kitti_format(
                 eval_gt_annos, map_name_to_kitti=map_name_to_kitti,
                 info_with_fakelidar=self.dataset_cfg.get('INFO_WITH_FAKELIDAR', False)
             )
