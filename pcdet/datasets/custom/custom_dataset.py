@@ -5,6 +5,7 @@ import os
 import numpy as np
 from pathlib import Path
 
+from . import custom_utils
 from ...ops.roiaware_pool3d import roiaware_pool3d_utils
 from ...utils import box_utils, common_utils
 from ..dataset import DatasetTemplate
@@ -149,6 +150,11 @@ class CustomDataset(DatasetTemplate):
 
         if kwargs['eval_metric'] == 'kitti':
             ap_result_str, ap_dict = kitti_eval(eval_det_annos, eval_gt_annos, self.map_class_to_kitti)
+        
+        elif kwargs['eval_metric'] == 'custom':
+            custom_eval = custom_utils.CustomEval(class_names)
+            ap_result_str, ap_dict = custom_eval.evaluate(eval_det_annos, eval_gt_annos, class_names)
+
         else:
             raise NotImplementedError
 
