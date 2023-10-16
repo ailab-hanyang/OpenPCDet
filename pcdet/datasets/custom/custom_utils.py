@@ -195,11 +195,11 @@ class CustomEval:
 
         # get all pred labels, order by score
         class_pred_label = pred_label[np.char.lower(pred_label[:, 0].astype(str)) == current_class.lower(), 1:]
-        score = class_pred_label[:, 7].astype(np.float)
-        class_pred_label = class_pred_label[(-score).argsort(), :].astype(np.float) # sort decreasing
+        score = class_pred_label[:, 7].astype(np.float32)
+        class_pred_label = class_pred_label[(-score).argsort(), :].astype(np.float32) # sort decreasing
 
         # add gt label length to total_N_pos
-        class_gt_label = gt_label[np.char.lower(gt_label[:, 0].astype(str)) == current_class.lower(), 1:].astype(np.float)
+        class_gt_label = gt_label[np.char.lower(gt_label[:, 0].astype(str)) == current_class.lower(), 1:].astype(np.float32)
         self.results_dict[current_class]['total_N_pos'] += class_gt_label.shape[0]
 
         # match pairs
