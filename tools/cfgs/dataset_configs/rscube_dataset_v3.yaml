@@ -15,7 +15,7 @@ DATA_SPLIT: {
 }
 DATA_SPLIT_SEQUENCE: {
     'train': ['01', '02', '03', '04', '05'],
-    'test':  ['05']
+    'test':  ['05', '06']
 }
 
 INFO_PATH: {
