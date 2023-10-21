@@ -64,7 +64,7 @@ def draw_scenes(points, gt_boxes=None, ref_boxes=None, ref_labels=None, ref_scor
         pts.colors = open3d.utility.Vector3dVector(point_colors)
 
     if gt_boxes is not None:
-        vis = draw_box(vis, gt_boxes, (0, 0, 1))
+        vis = draw_box(vis, gt_boxes, (1, 0, 0)) # Red
 
     if ref_boxes is not None:
         vis = draw_box(vis, ref_boxes, (0, 1, 0), ref_labels, ref_scores)

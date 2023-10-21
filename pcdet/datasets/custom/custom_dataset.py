@@ -1,3 +1,5 @@
+# Evaluation code Reference: https://github.com/jacoblambert/3d_lidar_detection_evaluation#3d-lidar-bbox-detection-evaluation
+
 import copy
 import pickle
 import os
@@ -5,6 +7,7 @@ import os
 import numpy as np
 from pathlib import Path
 
+from . import custom_utils
 from ...ops.roiaware_pool3d import roiaware_pool3d_utils
 from ...utils import box_utils, common_utils
 from ..dataset import DatasetTemplate
@@ -133,9 +136,8 @@ class CustomDataset(DatasetTemplate):
         def kitti_eval(eval_det_annos, eval_gt_annos, map_name_to_kitti):
             from ..kitti.kitti_object_eval_python import eval as kitti_eval
             from ..kitti import kitti_utils
-
-            kitti_utils.transform_annotations_to_kitti_format(eval_det_annos, map_name_to_kitti=map_name_to_kitti)
-            kitti_utils.transform_annotations_to_kitti_format(
+            eval_det_annos = kitti_utils.transform_annotations_to_kitti_format(eval_det_annos, map_name_to_kitti=map_name_to_kitti)
+            eval_gt_annos = kitti_utils.transform_annotations_to_kitti_format(
                 eval_gt_annos, map_name_to_kitti=map_name_to_kitti,
                 info_with_fakelidar=self.dataset_cfg.get('INFO_WITH_FAKELIDAR', False)
             )
@@ -150,6 +152,11 @@ class CustomDataset(DatasetTemplate):
 
         if kwargs['eval_metric'] == 'kitti':
             ap_result_str, ap_dict = kitti_eval(eval_det_annos, eval_gt_annos, self.map_class_to_kitti)
+        
+        elif kwargs['eval_metric'] == 'custom':
+            custom_eval = custom_utils.CustomEval(class_names)
+            ap_result_str, ap_dict = custom_eval.evaluate(eval_det_annos, eval_gt_annos, class_names)
+
         else:
             raise NotImplementedError
 

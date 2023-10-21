@@ -97,7 +97,7 @@ def eval_one_epoch(cfg, args, model, dataloader, epoch_id, logger, dist_test=Fal
     if cfg.LOCAL_RANK != 0:
         return {}
 
-    ret_dict = {}
+    ret_dict = {} # Return dictionary
     if dist_test:
         for key, val in metric[0].items():
             for k in range(1, world_size):

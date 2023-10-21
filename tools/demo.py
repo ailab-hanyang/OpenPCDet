@@ -1,6 +1,7 @@
 import argparse
 import glob
 from pathlib import Path
+import os, time
 
 try:
     import open3d
@@ -35,10 +36,16 @@ class DemoDataset(DatasetTemplate):
         )
         self.root_path = root_path
         self.ext = ext
-        data_file_list = glob.glob(str(root_path / f'*{self.ext}')) if self.root_path.is_dir() else [self.root_path]
+        data_file_list = glob.glob(str(root_path / '**/*.npy'), recursive=True) if self.root_path.is_dir() else [self.root_path]
+        label_file_list = glob.glob(str(root_path / '**/*.txt'), recursive=True) if self.root_path.is_dir() else [self.root_path]
 
         data_file_list.sort()
+        label_file_list.sort()
+
+        assert len(data_file_list) == len(label_file_list)
+        
         self.sample_file_list = data_file_list
+        self.label_file_list = label_file_list
 
     def __len__(self):
         return len(self.sample_file_list)
@@ -56,9 +63,30 @@ class DemoDataset(DatasetTemplate):
             'frame_id': index,
         }
 
+        gt_boxes_lidar, gt_names = self.get_label(self.label_file_list[index])
+        input_dict.update({
+            'gt_names': gt_names,
+            'gt_boxes': gt_boxes_lidar
+        })
+
         data_dict = self.prepare_data(data_dict=input_dict)
         return data_dict
+    
+    def get_label(self, label_path):
+        Path(label_path).exists()
+        with open(label_path, 'r') as f:
+            lines = f.readlines()
 
+        # [N, 8]: (x y z dx dy dz heading_angle category_id)
+        gt_boxes = []
+        gt_names = []
+        for line in lines:
+            # line_list = line.strip().split(', ') # Robust multisensor
+            line_list = line.strip().split(' ') # Original
+            gt_boxes.append(line_list[:-1])
+            gt_names.append(line_list[-1])
+
+        return np.array(gt_boxes, dtype=np.float32), np.array(gt_names)
 
 def parse_config():
     parser = argparse.ArgumentParser(description='arg parser')
@@ -67,7 +95,7 @@ def parse_config():
     parser.add_argument('--data_path', type=str, default='demo_data',
                         help='specify the point cloud data file or directory')
     parser.add_argument('--ckpt', type=str, default=None, help='specify the pretrained model')
-    parser.add_argument('--ext', type=str, default='.bin', help='specify the extension of your point cloud data file')
+    parser.add_argument('--ext', type=str, default='.npy', help='specify the extension of your point cloud data file')
 
     args = parser.parse_args()
 
@@ -77,7 +105,7 @@ def parse_config():
 
 
 def main():
-    args, cfg = parse_config()
+    args, cfg = parse_config()  
     logger = common_utils.create_logger()
     logger.info('-----------------Quick Demo of OpenPCDet-------------------------')
     demo_dataset = DemoDataset(
@@ -91,20 +119,20 @@ def main():
     model.cuda()
     model.eval()
     with torch.no_grad():
-        for idx, data_dict in enumerate(demo_dataset):
+        for idx, data_dict_ in enumerate(demo_dataset):
+            # if idx%100 != 0:
+            #     continue
+
             logger.info(f'Visualized sample index: \t{idx + 1}')
-            data_dict = demo_dataset.collate_batch([data_dict])
+            data_dict = demo_dataset.collate_batch([data_dict_])
             load_data_to_gpu(data_dict)
             pred_dicts, _ = model.forward(data_dict)
 
             V.draw_scenes(
-                points=data_dict['points'][:, 1:], ref_boxes=pred_dicts[0]['pred_boxes'],
-                ref_scores=pred_dicts[0]['pred_scores'], ref_labels=pred_dicts[0]['pred_labels']
+                points=data_dict_['points'][:, ],
+                ref_boxes=pred_dicts[0]['pred_boxes'], ref_scores=pred_dicts[0]['pred_scores'], ref_labels=pred_dicts[0]['pred_labels'],
+                gt_boxes=data_dict_['gt_boxes']
             )
-
-            if not OPEN3D_FLAG:
-                mlab.show(stop=True)
-
     logger.info('Demo done.')
 
 
