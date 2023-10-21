@@ -188,7 +188,14 @@ class Argo2Dataset(DatasetTemplate):
         self.argo2_infos = []
         self.include_argo2_data(self.mode)
         self.evaluate_range = dataset_cfg.get("EVALUATE_RANGE", 200.0)
-
+        self.class_group = [['Regular_vehicle',],
+                            ['Pedestrian', 'Bicyclist', 'Motorcyclist', 'Wheeled_rider'],
+                            ['Bollard', 'Construction_cone', 'Sign', 'Construction_barrel', 'Stop_sign', 'Mobile_pedestrian_crossing_sign'],
+                            ['Large_vehicle', 'Bus', 'Box_truck', 'Truck', 'Vehicular_trailer', 'Truck_cab', 'School_bus', 'Articulated_bus', 'Message_board_trailer'],]
+        self.class_group_flatten =['Regular_vehicle', 
+                                   'Pedestrian', 'Bicyclist', 'Motorcyclist', 'Wheeled_rider', 
+                                   'Bollard', 'Construction_cone', 'Sign', 'Construction_barrel', 'Stop_sign', 'Mobile_pedestrian_crossing_sign', 
+                                   'Large_vehicle', 'Bus', 'Box_truck', 'Truck', 'Vehicular_trailer', 'Truck_cab', 'School_bus', 'Articulated_bus']
     def include_argo2_data(self, mode):
         if self.logger is not None:
             self.logger.info('Loading Argoverse2 dataset')
@@ -323,6 +330,22 @@ class Argo2Dataset(DatasetTemplate):
             annos = info['annos']
             loc, dims, rots = annos['location'], annos['dimensions'], annos['rotation_y']
             gt_names = annos['name']
+            
+            merged_gt_names = []
+            for gt_name in gt_names:
+                if gt_name in self.class_group_flatten:
+                    for rep_class in self.class_group:
+                        # print(rep_class)
+                        if gt_name in rep_class:
+                            merged_gt_names.append(rep_class[0])
+                else:
+                    merged_gt_names.append(gt_name)
+            # print("Raw: ", gt_names)
+            # print("Merged: ", merged_gt_names)
+            # exit()
+            # # print("Raw: ", len(gt_names))
+            # # print("Merged: ", len(merged_gt_names))
+
             gt_bboxes_3d = np.concatenate([loc, dims, rots[..., np.newaxis]], axis=1).astype(np.float32)
 
             input_dict.update({
