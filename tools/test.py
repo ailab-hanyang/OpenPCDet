@@ -21,6 +21,8 @@ from pcdet.utils import common_utils
 def parse_config():
     parser = argparse.ArgumentParser(description='arg parser')
     parser.add_argument('--cfg_file', type=str, default=None, help='specify the config for training')
+    parser.add_argument('--output_dir', type=str, default='/home/ailab/AILabDataset/03_Shared_Repository/jinsu/10_AICube/1st_training/',
+                         help='specify the output save directory (Default: NAS)')
 
     parser.add_argument('--batch_size', type=int, default=None, required=False, help='batch size for training')
     parser.add_argument('--workers', type=int, default=4, help='number of workers for dataloader')
@@ -29,7 +31,7 @@ def parse_config():
     parser.add_argument('--pretrained_model', type=str, default=None, help='pretrained_model')
     parser.add_argument('--launcher', choices=['none', 'pytorch', 'slurm'], default='none')
     parser.add_argument('--tcp_port', type=int, default=18888, help='tcp port for distrbuted training')
-    parser.add_argument('--local_rank', type=int, default=0, help='local rank for distributed training')
+    parser.add_argument('--local-rank', type=int, default=None, help='local rank for distributed training')
     parser.add_argument('--set', dest='set_cfgs', default=None, nargs=argparse.REMAINDER,
                         help='set extra config keys if needed')
 
@@ -126,8 +128,24 @@ def repeat_eval_ckpt(model, test_loader, args, eval_output_dir, logger, ckpt_dir
         )
 
         if cfg.LOCAL_RANK == 0:
-            for key, val in tb_dict.items():
-                tb_log.add_scalar(key, val, cur_epoch_id)
+            if cfg.DATA_CONFIG.DATASET == 'Argo2Dataset':
+                import json
+                for key, val in tb_dict.items():
+                    if cfg.DATA_CONFIG.DATASET == 'Argo2Dataset':
+                        if isinstance(val, str):
+                            try:
+                                sub_dict = json.loads(val)
+                                for sub_key, sub_val in sub_dict.items():
+                                    tb_log.add_scalar(f"{key}/{sub_key}", sub_val, cur_epoch_id)
+                            except json.JSONDecodeError:
+                                print(f"Error decoding JSON for {key}: {val}")
+                        else:
+                            tb_log.add_scalar(key, val, cur_epoch_id)
+                    else:
+                        tb_log.add_scalar(key, val, cur_epoch_id)
+            else:
+                for key, val in tb_dict.items():
+                    tb_log.add_scalar(key, val, cur_epoch_id)
 
         # record this epoch which has been evaluated
         with open(ckpt_record_file, 'a') as f:
@@ -145,6 +163,9 @@ def main():
         dist_test = False
         total_gpus = 1
     else:
+        if args.local_rank is None:
+            args.local_rank = int(os.environ.get('LOCAL_RANK', '0'))
+
         total_gpus, cfg.LOCAL_RANK = getattr(common_utils, 'init_dist_%s' % args.launcher)(
             args.tcp_port, args.local_rank, backend='nccl'
         )
@@ -156,7 +177,9 @@ def main():
         assert args.batch_size % total_gpus == 0, 'Batch size should match the number of gpus'
         args.batch_size = args.batch_size // total_gpus
 
-    output_dir = cfg.ROOT_DIR / 'output' / cfg.EXP_GROUP_PATH / cfg.TAG / args.extra_tag
+    # output_dir = cfg.ROOT_DIR / 'output' / cfg.EXP_GROUP_PATH / cfg.TAG / args.extra_tag
+    # Save NAS directly
+    output_dir = Path(args.output_dir) / cfg.EXP_GROUP_PATH / cfg.TAG / args.extra_tag
     output_dir.mkdir(parents=True, exist_ok=True)
 
     eval_output_dir = output_dir / 'eval'

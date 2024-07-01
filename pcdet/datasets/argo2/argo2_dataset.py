@@ -188,7 +188,16 @@ class Argo2Dataset(DatasetTemplate):
         self.argo2_infos = []
         self.include_argo2_data(self.mode)
         self.evaluate_range = dataset_cfg.get("EVALUATE_RANGE", 200.0)
-
+        self.class_group = [['Regular_vehicle',],
+                            ['Pedestrian', 'Bicyclist', 'Motorcyclist', 'Wheeled_rider'],
+                            ['Bollard', 'Construction_cone', 'Sign', 'Construction_barrel', 'Stop_sign', 'Mobile_pedestrian_crossing_sign'],
+                            ['Large_vehicle', 'Bus', 'Box_truck', 'Truck', 'Vehicular_trailer', 'Truck_cab', 'School_bus', 'Articulated_bus', 'Message_board_trailer'],
+                            ['Bicycle', 'Motorcycle', 'Wheeled_device', 'Wheelchair', 'Stroller']]
+        self.class_group_flatten =['Regular_vehicle', 
+                                   'Pedestrian', 'Bicyclist', 'Motorcyclist', 'Wheeled_rider', 
+                                   'Bollard', 'Construction_cone', 'Sign', 'Construction_barrel', 'Stop_sign', 'Mobile_pedestrian_crossing_sign', 
+                                   'Large_vehicle', 'Bus', 'Box_truck', 'Truck', 'Vehicular_trailer', 'Truck_cab', 'School_bus', 'Articulated_bus',
+                                    'Bicycle', 'Motorcycle', 'Wheeled_device', 'Wheelchair', 'Stroller']
     def include_argo2_data(self, mode):
         if self.logger is not None:
             self.logger.info('Loading Argoverse2 dataset')
@@ -321,6 +330,16 @@ class Argo2Dataset(DatasetTemplate):
             annos = info['annos']
             loc, dims, rots = annos['location'], annos['dimensions'], annos['rotation_y']
             gt_names = annos['name']
+            
+            merged_gt_names = []
+            for gt_name in gt_names:
+                if gt_name in self.class_group_flatten:
+                    for rep_class in self.class_group:
+                        if gt_name in rep_class:
+                            merged_gt_names.append(rep_class[0])
+                else:
+                    merged_gt_names.append(gt_name)
+
             gt_bboxes_3d = np.concatenate([loc, dims, rots[..., np.newaxis]], axis=1).astype(np.float32)
 
             input_dict.update({
@@ -362,7 +381,7 @@ class Argo2Dataset(DatasetTemplate):
         """
         import pandas as pd
 
-        assert len(self.argo2_infos) == len(outputs)
+        # assert len(self.argo2_infos) == len(outputs)
         num_samples = len(outputs)
         print('\nGot {} samples'.format(num_samples))
 
@@ -376,6 +395,8 @@ class Argo2Dataset(DatasetTemplate):
             #cat_id = out_i['labels_3d'].numpy().tolist()
             #category = [class_names[i].upper() for i in cat_id]
             category = [class_name.upper() for class_name in out_i['name']]
+            if len(out_i['bbox']) == 0:
+                continue
             serialized_dts = pd.DataFrame(
                 self.lidar_box_to_argo2(out_i['bbox']).numpy(), columns=list(LABEL_ATTR)
             )
@@ -412,6 +433,29 @@ class Argo2Dataset(DatasetTemplate):
         quat = yaw_to_quat(yaw)
         argo_cuboid = torch.cat([cnt_xyz, lwh, quat], dim=1)
         return argo_cuboid
+    
+    def map_categories(self, gts, class_group):
+        """
+        Maps and filters categories in the given DataFrame based on the specified class grouping.
+        
+        Args:
+            gts (DataFrame): The input DataFrame containing categories to be mapped and filtered.
+            class_group (list of list of str): A list of lists, where each inner list contains categories that should be grouped together. The first category in each group is used as the representative category.
+
+        Returns:
+            DataFrame: A DataFrame with categories mapped to their respective group representatives and invalid categories removed.
+        """
+        category_mapping = {}
+        valid_categories = set()
+        for group in class_group:
+            for category in group:
+                category_upper = category.upper()
+                category_mapping[category_upper] = group[0].upper()
+                valid_categories.add(category_upper)
+
+        gts['category'] = gts['category'].str.upper().map(category_mapping)
+        gts = gts[gts['category'].notna()]
+        return gts
 
     def evaluation(self,
                  results,
@@ -462,8 +506,10 @@ class Argo2Dataset(DatasetTemplate):
         valid_uuids = set(valid_uuids_gts) & set(valid_uuids_dts)
         gts = gts.loc[list(valid_uuids)].sort_index()
 
-        categories = set(x.value for x in CompetitionCategories)
-        categories &= set(gts["category"].unique().tolist())
+        gts = self.map_categories(gts, self.class_group) # Merge GT Categories
+
+        categories = set(x.value for x in CompetitionCategories) # Load argo2 entire class
+        categories &= set(gts["category"].unique().tolist()) # 
 
         dataset_dir = Path(argo2_root) / 'sensor' / 'val'
         cfg = DetectionCfg(

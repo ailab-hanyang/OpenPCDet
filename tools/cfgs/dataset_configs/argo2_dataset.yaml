@@ -1,5 +1,5 @@
 DATASET: 'Argo2Dataset'
-DATA_PATH: '../data/argo2'
+DATA_PATH: '/home/ailab/AILabDataset/01_Open_Dataset/24_Argoverse2/OpenPCDet'
 
 POINT_CLOUD_RANGE: [-200, -200, -20, 200, 200, 20]
 
