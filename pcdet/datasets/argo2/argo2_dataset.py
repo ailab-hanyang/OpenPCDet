@@ -188,16 +188,27 @@ class Argo2Dataset(DatasetTemplate):
         self.argo2_infos = []
         self.include_argo2_data(self.mode)
         self.evaluate_range = dataset_cfg.get("EVALUATE_RANGE", 200.0)
-        self.class_group = [['Regular_vehicle',],
-                            ['Pedestrian', 'Bicyclist', 'Motorcyclist', 'Wheeled_rider'],
-                            ['Bollard', 'Construction_cone', 'Sign', 'Construction_barrel', 'Stop_sign', 'Mobile_pedestrian_crossing_sign'],
-                            ['Large_vehicle', 'Bus', 'Box_truck', 'Truck', 'Vehicular_trailer', 'Truck_cab', 'School_bus', 'Articulated_bus', 'Message_board_trailer'],
-                            ['Bicycle', 'Motorcycle', 'Wheeled_device', 'Wheelchair', 'Stroller']]
+
+        self.class_group_v001 = [['Regular_vehicle',],
+                                 ['Pedestrian', 'Bicyclist', 'Motorcyclist', 'Wheeled_rider'],
+                                 ['Bollard', 'Construction_cone', 'Sign', 'Construction_barrel', 'Stop_sign', 'Mobile_pedestrian_crossing_sign']]
+        self.class_group_v002 = [['Regular_vehicle',],
+                                 ['Pedestrian', 'Bicyclist', 'Motorcyclist', 'Wheeled_rider'],
+                                 ['Bollard', 'Construction_cone', 'Sign', 'Construction_barrel', 'Stop_sign', 'Mobile_pedestrian_crossing_sign'],
+                                 ['Bicycle', 'Motorcycle', 'Wheeled_device', 'Wheelchair', 'Stroller']]
+        self.class_group_v003 = [['Regular_vehicle','Large_vehicle', 'Bus', 'Box_truck', 'Truck', 'Vehicular_trailer', 'Truck_cab', 'School_bus', 'Articulated_bus', 'Message_board_trailer'],
+                                 ['Pedestrian', 'Bicyclist', 'Motorcyclist', 'Wheeled_rider'],
+                                 ['Bollard', 'Construction_cone', 'Sign', 'Construction_barrel', 'Stop_sign', 'Mobile_pedestrian_crossing_sign'],
+                                 ['Bicycle', 'Motorcycle', 'Wheeled_device', 'Wheelchair', 'Stroller']]
+        
         self.class_group_flatten =['Regular_vehicle', 
                                    'Pedestrian', 'Bicyclist', 'Motorcyclist', 'Wheeled_rider', 
                                    'Bollard', 'Construction_cone', 'Sign', 'Construction_barrel', 'Stop_sign', 'Mobile_pedestrian_crossing_sign', 
                                    'Large_vehicle', 'Bus', 'Box_truck', 'Truck', 'Vehicular_trailer', 'Truck_cab', 'School_bus', 'Articulated_bus',
-                                    'Bicycle', 'Motorcycle', 'Wheeled_device', 'Wheelchair', 'Stroller']
+                                   'Bicycle', 'Motorcycle', 'Wheeled_device', 'Wheelchair', 'Stroller']
+        
+        self.class_group = self.class_group_v003
+
     def include_argo2_data(self, mode):
         if self.logger is not None:
             self.logger.info('Loading Argoverse2 dataset')
