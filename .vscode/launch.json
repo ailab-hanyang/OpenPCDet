@@ -9,12 +9,22 @@
             "type": "debugpy",
             "request": "launch",
             "program": "${file}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Python Debugger: OpenPCDet Test",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}/tools/",
-            "args": ["--cfg_file", "cfgs/argo2_models/pp_multihead_v001.yaml",
-                    "--ckpt", "/home/ailab/AILabDataset/03_Shared_Repository/jinsu/10_AICube/1st_training/argo2_models/pp_multihead_v001/default/ckpt/checkpoint_epoch_50.pth",
-                    "--eval_all"
-                    ]
+            "args": [
+                "--cfg_file",
+                "cfgs/argo2_models/pp_multihead_v001.yaml",
+                "--ckpt",
+                "/home/ailab/AILabDataset/03_Shared_Repository/jinsu/10_AICube/1st_training/argo2_models/pp_multihead_v001/default/ckpt/checkpoint_epoch_50.pth",
+                "--eval_all"
+            ]
         }
     ]
 }
