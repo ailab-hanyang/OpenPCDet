@@ -147,7 +147,7 @@ def main():
     
     logger.info(f"Anchor configuration saved to {output_file}")
     
-    output_dir = "tools" / "anchor" / Path("visualizations") / split_name
+    output_dir = Path("tools") / "anchor" / "visualizations" / split_name
     visualize_anchors_and_distribution(boxes, categories, anchor_configs, output_dir)
 
 if __name__ == "__main__":
