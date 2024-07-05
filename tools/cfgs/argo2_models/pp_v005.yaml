@@ -1,12 +1,8 @@
-# CLASS_NAMES: ['Regular_vehicle', 'Pedestrian', 'Bicyclist', 'Motorcyclist', 'Wheeled_rider',
-#             'Bollard', 'Construction_cone', 'Sign', 'Construction_barrel', 'Stop_sign', 'Mobile_pedestrian_crossing_sign',
-#             'Large_vehicle', 'Bus', 'Box_truck', 'Truck', 'Vehicular_trailer', 'Truck_cab', 'School_bus', 'Articulated_bus', 
-#             'Message_board_trailer', 'Bicycle', 'Motorcycle', 'Wheeled_device', 'Wheelchair', 'Stroller', 'Dog']
-CLASS_NAMES: ['Regular_vehicle', 'Pedestrian', 'Bollard', 'Large_vehicle' ]
+CLASS_NAMES: ['Regular_vehicle', 'Bus', 'Pedestrian', 'Bicycle']
 
 DATA_CONFIG:
     _BASE_CONFIG_: cfgs/dataset_configs/argo2_dataset.yaml
-    CLASS_GROUP : v1
+    CLASS_GROUP: v4
     POINT_CLOUD_RANGE: [-100, -51.2, -10, 100, 51.2, 10]
     DATA_PROCESSOR:
         -   NAME: mask_points_and_boxes_outside_range
@@ -45,83 +41,60 @@ MODEL:
         LAYER_NUMS: [3, 5, 5]
         LAYER_STRIDES: [2, 2, 2]
         NUM_FILTERS: [64, 128, 256]
-        UPSAMPLE_STRIDES: [0.5, 1, 2]
+        UPSAMPLE_STRIDES: [1, 2, 4]
         NUM_UPSAMPLE_FILTERS: [128, 128, 128]
 
     DENSE_HEAD:
-        NAME: AnchorHeadMulti
+        NAME: AnchorHeadSingle
         CLASS_AGNOSTIC: False
 
+        USE_DIRECTION_CLASSIFIER: True
         DIR_OFFSET: 0.78539
         DIR_LIMIT_OFFSET: 0.0
         NUM_DIR_BINS: 2
 
-        USE_MULTIHEAD: True
-        SEPARATE_MULTIHEAD: True
         ANCHOR_GENERATOR_CONFIG: [
             {
                 'class_name': 'Regular_vehicle',
-                'anchor_sizes': [[4.64, 1.90, 1.38]],
+                'anchor_sizes': [[5.31,2.09,1.93], [4.21, 1.90, 1.67]],
                 'anchor_rotations': [0, 1.57],
                 'anchor_bottom_heights': [-0.3],
                 'align_center': False,
-                'feature_map_stride': 4,
+                'feature_map_stride': 2,
                 'matched_threshold': 0.6,
                 'unmatched_threshold': 0.45
+            },
+            {
+                'class_name': 'Bus',
+                'anchor_sizes': [[9.77 ,2.91, 3.26], [12.68, 3.03, 3.36]],
+                'anchor_rotations': [0, 1.57],
+                'anchor_bottom_heights': [-0.6],
+                'align_center': False,
+                'feature_map_stride': 2,
+                'matched_threshold': 0.5,
+                'unmatched_threshold': 0.35
             },
             {
                 'class_name': 'Pedestrian',
-                'anchor_sizes': [[0.8, 0.6, 1.73]],
+                'anchor_sizes': [[0.87, 0.98, 1.88]],
                 'anchor_rotations': [0, 1.57],
                 'anchor_bottom_heights': [-0.6],
                 'align_center': False,
-                'feature_map_stride': 4,
+                'feature_map_stride': 2,
                 'matched_threshold': 0.5,
                 'unmatched_threshold': 0.35
             },
             {
-                'class_name': 'Bollard',
-                'anchor_sizes': [[1.76, 0.6, 1.73]],
+                'class_name': Bicycle,
+                'anchor_sizes': [[1.77,, 0.75,, 1.5]],
                 'anchor_rotations': [0, 1.57],
                 'anchor_bottom_heights': [-0.6],
                 'align_center': False,
-                'feature_map_stride': 4,
+                'feature_map_stride': 2,
                 'matched_threshold': 0.5,
                 'unmatched_threshold': 0.35
-            },
-            {
-                'class_name': 'Large_vehicle',
-                'anchor_sizes': [[7.0, 2.0, 3.0]],
-                'anchor_rotations': [0, 1.57],
-                'anchor_bottom_heights': [-0.3],
-                'align_center': False,
-                'feature_map_stride':4,
-                'matched_threshold': 0.6,
-                'unmatched_threshold': 0.45
             }
         ]
-
-
-        SHARED_CONV_NUM_FILTER: 64
-
-        RPN_HEAD_CFGS: [
-            {
-                'HEAD_CLS_NAME': ['Regular_vehicle'],
-            },
-            {
-                'HEAD_CLS_NAME': ['Pedestrian'],
-            },
-            {
-                'HEAD_CLS_NAME': ['Bollard'],
-            },
-            {
-                'HEAD_CLS_NAME': ['Large_vehicle'],
-            },
-        ]
-        SEPARATE_REG_CONFIG: 
-            NUM_MIDDLE_CONV: 1
-            NUM_MIDDLE_FILTER: 64
-            REG_LIST: ['reg:2', 'height:1', 'size:3', 'angle:2'] #, 'velo:2']
 
         TARGET_ASSIGNER_CONFIG:
             NAME: AxisAlignedTargetAssigner
@@ -130,21 +103,13 @@ MODEL:
             NORM_BY_NUM_EXAMPLES: False
             MATCH_HEIGHT: False
             BOX_CODER: ResidualCoder
-            BOX_CODER_CONFIG: {
-                'code_size': 7, # 9,
-                'encode_angle_by_sincos': True
-            }
-
 
         LOSS_CONFIG:
-            REG_LOSS_TYPE: WeightedL1Loss
             LOSS_WEIGHTS: {
-                'pos_cls_weight': 1.0,
-                'neg_cls_weight': 2.0,
                 'cls_weight': 1.0,
-                'loc_weight': 0.25,
+                'loc_weight': 2.0,
                 'dir_weight': 0.2,
-                'code_weights': [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0] #, 0.2, 0.2]
+                'code_weights': [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
             }
 
     POST_PROCESSING:
@@ -155,15 +120,15 @@ MODEL:
         EVAL_METRIC: kitti
 
         NMS_CONFIG:
-            MULTI_CLASSES_NMS: True
+            MULTI_CLASSES_NMS: False
             NMS_TYPE: nms_gpu
-            NMS_THRESH: 0.2
-            NMS_PRE_MAXSIZE: 1000
-            NMS_POST_MAXSIZE: 83
+            NMS_THRESH: 0.01
+            NMS_PRE_MAXSIZE: 4096
+            NMS_POST_MAXSIZE: 500
 
 
 OPTIMIZATION:
-    BATCH_SIZE_PER_GPU: 8
+    BATCH_SIZE_PER_GPU: 4
     NUM_EPOCHS: 50
 
     OPTIMIZER: adam_onecycle

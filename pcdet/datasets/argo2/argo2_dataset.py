@@ -189,25 +189,38 @@ class Argo2Dataset(DatasetTemplate):
         self.include_argo2_data(self.mode)
         self.evaluate_range = dataset_cfg.get("EVALUATE_RANGE", 200.0)
 
-        self.class_group_v001 = [['Regular_vehicle',],
-                                 ['Pedestrian', 'Bicyclist', 'Motorcyclist', 'Wheeled_rider'],
-                                 ['Bollard', 'Construction_cone', 'Sign', 'Construction_barrel', 'Stop_sign', 'Mobile_pedestrian_crossing_sign']]
-        self.class_group_v002 = [['Regular_vehicle',],
-                                 ['Pedestrian', 'Bicyclist', 'Motorcyclist', 'Wheeled_rider'],
-                                 ['Bollard', 'Construction_cone', 'Sign', 'Construction_barrel', 'Stop_sign', 'Mobile_pedestrian_crossing_sign'],
-                                 ['Bicycle', 'Motorcycle', 'Wheeled_device', 'Wheelchair', 'Stroller']]
-        self.class_group_v003 = [['Regular_vehicle','Large_vehicle', 'Bus', 'Box_truck', 'Truck', 'Vehicular_trailer', 'Truck_cab', 'School_bus', 'Articulated_bus', 'Message_board_trailer'],
-                                 ['Pedestrian', 'Bicyclist', 'Motorcyclist', 'Wheeled_rider'],
-                                 ['Bollard', 'Construction_cone', 'Sign', 'Construction_barrel', 'Stop_sign', 'Mobile_pedestrian_crossing_sign'],
-                                 ['Bicycle', 'Motorcycle', 'Wheeled_device', 'Wheelchair', 'Stroller']]
-        
-        self.class_group_flatten =['Regular_vehicle', 
-                                   'Pedestrian', 'Bicyclist', 'Motorcyclist', 'Wheeled_rider', 
-                                   'Bollard', 'Construction_cone', 'Sign', 'Construction_barrel', 'Stop_sign', 'Mobile_pedestrian_crossing_sign', 
-                                   'Large_vehicle', 'Bus', 'Box_truck', 'Truck', 'Vehicular_trailer', 'Truck_cab', 'School_bus', 'Articulated_bus',
-                                   'Bicycle', 'Motorcycle', 'Wheeled_device', 'Wheelchair', 'Stroller']
-        
-        self.class_group = self.class_group_v003
+        class_group_v1 = [['Regular_vehicle',],
+                            ['Pedestrian', 'Bicyclist', 'Motorcyclist', 'Wheeled_rider'],
+                            ['Bollard', 'Construction_cone', 'Sign', 'Construction_barrel', 'Stop_sign', 'Mobile_pedestrian_crossing_sign']]
+        class_group_v2 = [['Regular_vehicle',],
+                            ['Pedestrian', 'Bicyclist', 'Motorcyclist', 'Wheeled_rider'],
+                            ['Bollard', 'Construction_cone', 'Sign', 'Construction_barrel', 'Stop_sign', 'Mobile_pedestrian_crossing_sign'],
+                            ['Bicycle', 'Motorcycle', 'Wheeled_device', 'Wheelchair', 'Stroller']]
+        class_group_v3 = [['Regular_vehicle','Large_vehicle', 'Bus', 'Box_truck', 'Truck', 'Vehicular_trailer', 'Truck_cab', 'School_bus', 'Articulated_bus', 'Message_board_trailer'],
+                            ['Pedestrian', 'Bicyclist', 'Motorcyclist', 'Wheeled_rider'],
+                            ['Bollard', 'Construction_cone', 'Sign', 'Construction_barrel', 'Stop_sign', 'Mobile_pedestrian_crossing_sign'],
+                            ['Bicycle', 'Motorcycle', 'Wheeled_device', 'Wheelchair', 'Stroller']]
+        class_group_v4 = [['Regular_vehicle'],
+                            ['Bus', 'Box_truck', 'Truck'],
+                            ['Pedestrian', 'Bicyclist', 'Motorcyclist', 'Wheeled_rider'],
+                            ['Bicycle', 'Motorcycle', 'Wheeled_device']]
+        self.class_group_flatten = [item for sublist in self.class_group for item in sublist]
+
+        if dataset_cfg.get('CLASS_GROUP', 'v1') == 'v1':
+            self.class_group = class_group_v1
+        elif dataset_cfg.get('CLASS_GROUP', 'v1') == 'v2':
+            self.class_group = class_group_v2
+        elif dataset_cfg.get('CLASS_GROUP', 'v1') == 'v3':
+            self.class_group = class_group_v3
+        elif dataset_cfg.get('CLASS_GROUP', 'v1') == 'v4':
+            self.class_group = class_group_v4
+        # elif dataset_cfg.get('CLASS_GROUP', 'v1') == 'v5':
+        #     self.class_group = class_group_v5
+        # elif dataset_cfg.get('CLASS_GROUP', 'v1') == 'v6':
+        #     self.class_group = class_group_v6
+        # Log class group config
+        if self.logger is not None:
+            self.logger.info(f'Class group config: {self.class_group}')
 
     def include_argo2_data(self, mode):
         if self.logger is not None:

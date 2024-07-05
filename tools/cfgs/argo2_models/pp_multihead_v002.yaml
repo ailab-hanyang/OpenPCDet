@@ -6,7 +6,7 @@ CLASS_NAMES: ['Regular_vehicle', 'Pedestrian', 'Bollard', 'Large_vehicle', 'Bicy
 
 DATA_CONFIG:
     _BASE_CONFIG_: cfgs/dataset_configs/argo2_dataset.yaml
-
+    CLASS_GROUP : v2
     POINT_CLOUD_RANGE: [-100, -51.2, -10, 100, 51.2, 10]
     DATA_PROCESSOR:
         -   NAME: mask_points_and_boxes_outside_range
