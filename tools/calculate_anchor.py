@@ -43,20 +43,27 @@ def calculate_anchors(boxes, num_clusters):
     return anchors
 
 def generate_anchor_config(class_name, anchor_sizes, matched_threshold=0.6, unmatched_threshold=0.45, bottom_height=-0.3):
+    anchor_sizes = [[round(size, 2) for size in anchor] for anchor in anchor_sizes.tolist()]
+    
     config = {
         'class_name': class_name,
-        'anchor_sizes': anchor_sizes.tolist(),
-        'anchor_rotations': [0, 1.57],
-        'anchor_bottom_heights': [bottom_height],
-        'align_center': False,
-        'feature_map_stride': 4,
-        'matched_threshold': matched_threshold,
-        'unmatched_threshold': unmatched_threshold
+        'anchor_sizes': anchor_sizes,
+        # 'anchor_rotations': [0, 1.57],
+        # 'anchor_bottom_heights': [bottom_height],
+        # 'align_center': False,
+        # 'feature_map_stride': 4,
+        # 'matched_threshold': matched_threshold,
+        # 'unmatched_threshold': unmatched_threshold
     }
     return config
 
+def save_anchor_configs(anchor_configs, output_file):
+    with open(output_file, 'w') as f:
+        # json.dump(anchor_configs, f)
+        json.dump(anchor_configs, f, indent=4, separators=(',', ': '))
+
 def visualize_anchors_and_distribution(boxes, categories, anchor_configs, output_dir, sample_size=100):
-    output_dir.mkdirs(parents=True, exist_ok=True)
+    os.makedirs(output_dir, exist_ok=True)
     colors = plt.cm.tab20(np.linspace(0, 1, len(anchor_configs)))
     
     unique_categories = set(categories)
@@ -142,8 +149,7 @@ def main():
         anchor_configs.append(config)
     
     output_file = "tools/anchor/anchor_config.json"
-    with open(output_file, 'w') as f:
-        json.dump(anchor_configs, f, indent=4)
+    save_anchor_configs(anchor_configs, output_file)
     
     logger.info(f"Anchor configuration saved to {output_file}")
     
