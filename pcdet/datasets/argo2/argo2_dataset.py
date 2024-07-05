@@ -204,23 +204,24 @@ class Argo2Dataset(DatasetTemplate):
                             ['Bus', 'Box_truck', 'Truck'],
                             ['Pedestrian', 'Bicyclist', 'Motorcyclist', 'Wheeled_rider'],
                             ['Bicycle', 'Motorcycle', 'Wheeled_device']]
-        self.class_group_flatten = [item for sublist in self.class_group for item in sublist]
-
-        if dataset_cfg.get('CLASS_GROUP', 'v1') == 'v1':
+        
+        class_group_version = dataset_cfg.get('CLASS_GROUP', 'v1')
+        if class_group_version == 'v1':
             self.class_group = class_group_v1
-        elif dataset_cfg.get('CLASS_GROUP', 'v1') == 'v2':
+        elif class_group_version == 'v2':
             self.class_group = class_group_v2
-        elif dataset_cfg.get('CLASS_GROUP', 'v1') == 'v3':
+        elif class_group_version == 'v3':
             self.class_group = class_group_v3
-        elif dataset_cfg.get('CLASS_GROUP', 'v1') == 'v4':
+        elif class_group_version == 'v4':
             self.class_group = class_group_v4
-        # elif dataset_cfg.get('CLASS_GROUP', 'v1') == 'v5':
+        # elif class_group_version == 'v5':
         #     self.class_group = class_group_v5
-        # elif dataset_cfg.get('CLASS_GROUP', 'v1') == 'v6':
+        # elif class_group_version == 'v6':
         #     self.class_group = class_group_v6
         # Log class group config
         if self.logger is not None:
-            self.logger.info(f'Class group config: {self.class_group}')
+            self.logger.info(f'Class group [{class_group_version}] {self.class_group}')
+        self.class_group_flatten = [item for sublist in self.class_group for item in sublist]
 
     def include_argo2_data(self, mode):
         if self.logger is not None:
