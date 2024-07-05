@@ -3,7 +3,7 @@ CLASS_NAMES: ['Regular_vehicle', 'Bus', 'Pedestrian', 'Bicycle']
 DATA_CONFIG:
     _BASE_CONFIG_: cfgs/dataset_configs/argo2_dataset.yaml
     CLASS_GROUP: v4
-    POINT_CLOUD_RANGE: [-102.4, -51.2, -10, 102.4, 51.2, 10]
+    POINT_CLOUD_RANGE: [-108.0, -54.0, -1.0, 108.0, 54.0, 7.0]
 
     DATA_AUGMENTOR:
         DISABLE_AUG_LIST: ['placeholder']
@@ -96,13 +96,13 @@ MODEL:
         USE_BIAS_BEFORE_NORM: True
         NUM_HM_CONV: 2
         SEPARATE_HEAD_CFG:
-            HEAD_ORDER: ['center', 'center_z', 'dim', 'rot', 'vel']
+            HEAD_ORDER: ['center', 'center_z', 'dim', 'rot'] # 'vel']
             HEAD_DICT: {
                 'center': {'out_channels': 2, 'num_conv': 2},
                 'center_z': {'out_channels': 1, 'num_conv': 2},
                 'dim': {'out_channels': 3, 'num_conv': 2},
                 'rot': {'out_channels': 2, 'num_conv': 2},
-                'vel': {'out_channels': 2, 'num_conv': 2},
+                # 'vel': {'out_channels': 2, 'num_conv': 2},
             }
 
         TARGET_ASSIGNER_CONFIG:
@@ -115,7 +115,7 @@ MODEL:
             LOSS_WEIGHTS: {
                 'cls_weight': 1.0,
                 'loc_weight': 0.25,
-                'code_weights': [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.2, 0.2, 1.0, 1.0]
+                'code_weights': [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.2, 0.2] #, 1.0, 1.0]
             }
 
         POST_PROCESSING:
@@ -132,8 +132,6 @@ MODEL:
         RECALL_THRESH_LIST: [0.3, 0.5, 0.7]
 
         EVAL_METRIC: kitti
-
-
 
 OPTIMIZATION:
     BATCH_SIZE_PER_GPU: 4
