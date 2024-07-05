@@ -3,7 +3,7 @@ CLASS_NAMES: ['Regular_vehicle', 'Bus', 'Pedestrian', 'Bicycle']
 DATA_CONFIG:
     _BASE_CONFIG_: cfgs/dataset_configs/argo2_dataset.yaml
     CLASS_GROUP: v4
-    POINT_CLOUD_RANGE: [-100, -51.2, -10, 100, 51.2, 10]
+    POINT_CLOUD_RANGE: [-102.4, -51.2, -10, 102.4, 51.2, 10]
     DATA_PROCESSOR:
         -   NAME: mask_points_and_boxes_outside_range
             REMOVE_OUTSIDE_BOXES: True
@@ -128,7 +128,7 @@ MODEL:
 
 
 OPTIMIZATION:
-    BATCH_SIZE_PER_GPU: 8
+    BATCH_SIZE_PER_GPU: 4
     NUM_EPOCHS: 50
 
     OPTIMIZER: adam_onecycle
