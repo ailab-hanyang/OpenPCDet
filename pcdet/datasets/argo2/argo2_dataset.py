@@ -203,7 +203,11 @@ class Argo2Dataset(DatasetTemplate):
         class_group_v4 = [['Regular_vehicle'],
                             ['Bus', 'Box_truck', 'Truck'],
                             ['Pedestrian', 'Bicyclist', 'Motorcyclist', 'Wheeled_rider'],
-                            ['Bicycle', 'Motorcycle', 'Wheeled_device']]
+                            ['Bicycle', 'Motorcycle']]        
+        class_group_v5 = [['Regular_vehicle'],
+                            ['Bus', 'Box_truck', 'Truck'],
+                            ['Pedestrian', 'Bicyclist', 'Motorcyclist'],
+                            ['Bicycle', 'Motorcycle']]
         
         class_group_version = dataset_cfg.get('CLASS_GROUP', 'v1')
         if class_group_version == 'v1':
@@ -214,8 +218,8 @@ class Argo2Dataset(DatasetTemplate):
             self.class_group = class_group_v3
         elif class_group_version == 'v4':
             self.class_group = class_group_v4
-        # elif class_group_version == 'v5':
-        #     self.class_group = class_group_v5
+        elif class_group_version == 'v5':
+            self.class_group = class_group_v5
         # elif class_group_version == 'v6':
         #     self.class_group = class_group_v6
         # Log class group config
