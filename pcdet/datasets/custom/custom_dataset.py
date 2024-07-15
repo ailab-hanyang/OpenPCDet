@@ -56,7 +56,8 @@ class CustomDataset(DatasetTemplate):
         gt_boxes = []
         gt_names = []
         for line in lines:
-            line_list = line.strip().split(' ')
+            # line_list = line.strip().split(' ')
+            line_list = line.split()
             gt_boxes.append(line_list[:-1])
             gt_names.append(line_list[-1])
 
@@ -134,6 +135,8 @@ class CustomDataset(DatasetTemplate):
 
         if kwargs['eval_metric'] == 'kitti':
             ap_result_str, ap_dict = kitti_eval(eval_det_annos, eval_gt_annos, self.map_class_to_kitti)
+        # elif kwargs['eval_metric'] == 'argo2': # TODO
+        #     ap_result_str, ap_dict = argo2_eval(eval_det_annos, eval_gt_annos)
         else:
             raise NotImplementedError
 
@@ -265,6 +268,29 @@ def create_custom_infos(dataset_cfg, class_names, data_path, save_path, workers=
     print('------------------------Data preparation done------------------------')
 
 
+def create_custom_infos_test(dataset_cfg, class_names, save_path, workers=4):
+    dataset = CustomDataset(
+        dataset_cfg=dataset_cfg, class_names=class_names,
+        training=False, logger=common_utils.create_logger()
+    )
+    test_split = 'test'
+    num_features = len(dataset_cfg.POINT_FEATURE_ENCODING.src_feature_list)
+
+    test_filename = save_path / ('custom_infos_%s.pkl' % test_split)
+
+    print('------------------------Start to generate data infos------------------------')
+
+    dataset.set_split(test_split)
+    custom_infos_train = dataset.get_infos(
+        class_names, num_workers=workers, has_label=True, num_features=num_features
+    )
+    with open(test_filename, 'wb') as f:
+        pickle.dump(custom_infos_train, f)
+    print('Custom info test file is saved to %s' % test_filename)
+
+    print('------------------------Test Data preparation done------------------------')
+
+
 if __name__ == '__main__':
     import sys
 
@@ -280,4 +306,17 @@ if __name__ == '__main__':
             class_names=['Vehicle', 'Pedestrian', 'Cyclist'],
             data_path=ROOT_DIR / 'data' / 'custom',
             save_path=ROOT_DIR / 'data' / 'custom',
+        )
+
+    if sys.argv.__len__() > 1 and sys.argv[1] == 'create_custom_infos_test':
+        import yaml
+        from pathlib import Path
+        from easydict import EasyDict
+
+        dataset_cfg = EasyDict(yaml.safe_load(open(sys.argv[2])))
+        ROOT_DIR = (Path(__file__).resolve().parent / '../../../').resolve()
+        create_custom_infos_test(
+            dataset_cfg=dataset_cfg,
+            class_names=dataset_cfg.CLASS_NAMES,
+            save_path=Path(dataset_cfg.DATA_PATH)
         )
