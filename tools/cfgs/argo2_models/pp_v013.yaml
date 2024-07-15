@@ -3,7 +3,7 @@ CLASS_NAMES: ['Regular_vehicle', 'Bus', 'Pedestrian', 'Bicycle']
 DATA_CONFIG:
     _BASE_CONFIG_: cfgs/dataset_configs/argo2_dataset.yaml
     CLASS_GROUP: v5
-    POINT_CLOUD_RANGE: [-51.2, -51.2, -10, 51.2.4, 51.2, 10]
+    POINT_CLOUD_RANGE: [-51.2, -51.2, -10, 51.2, 51.2, 10]
     DATA_PROCESSOR:
         -   NAME: mask_points_and_boxes_outside_range
             REMOVE_OUTSIDE_BOXES: True
