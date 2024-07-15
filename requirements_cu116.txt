@@ -1,0 +1,22 @@
+# pytorch
+torch==1.13.1+cu116
+torchvision==0.14.1+cu116
+torchaudio==0.13.1
+-f https://download.pytorch.org/whl/cu116
+
+# spcponv
+spconv-cu116 # or, spconv-cu113
+
+numpy==1.23
+llvmlite
+numba
+tensorboardX
+easydict
+pyyaml
+scikit-image
+tqdm
+SharedArray
+opencv-python
+pyquaternion
+kornia==0.6.12
+av2
