@@ -45,7 +45,12 @@ def parse_config():
 
     args = parser.parse_args()
 
+    if args.eval_tag == 'rscube_v4':
+        cfg_from_yaml_file('cfgs/dataset_configs/rscube_dataset_v4.yaml', cfg)
+        print("Convert to rscube_v4 evaluation dataset")
     cfg_from_yaml_file(args.cfg_file, cfg)
+
+    # Change dataset config
     cfg.TAG = Path(args.cfg_file).stem
     cfg.EXP_GROUP_PATH = '/'.join(args.cfg_file.split('/')[1:-1])  # remove 'cfgs' and 'xxxx.yaml'
 

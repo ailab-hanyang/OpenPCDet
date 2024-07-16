@@ -59,7 +59,7 @@ def main():
     root_path = Path("/home/ailab/AILabDataset/02_Custom_Dataset/21_RSCube_Dataset/V2/Raw")
     save_path = Path("/home/ailab/AILabDataset/02_Custom_Dataset/21_RSCube_Dataset/V2/Processed")
     scenarios = ['highway', 'urban']
-    sample_rate = 10
+    sample_rate = 2
 
     print_config(root_path, save_path, scenarios, sample_rate)
 
