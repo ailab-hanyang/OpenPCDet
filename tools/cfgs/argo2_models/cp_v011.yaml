@@ -1,7 +1,7 @@
 CLASS_NAMES: ['Regular_vehicle', 'Bus', 'Pedestrian', 'Bicycle']
 
 DATA_CONFIG:
-    _BASE_CONFIG_: cfgs/dataset_configs/rscube_dataset_v4.yaml
+    _BASE_CONFIG_: cfgs/dataset_configs/argo2_dataset.yaml
     CLASS_GROUP: v4
     POINT_CLOUD_RANGE: [-81.0, -54.0, -1.0, 81.0, 54.0, 7.0]
 
