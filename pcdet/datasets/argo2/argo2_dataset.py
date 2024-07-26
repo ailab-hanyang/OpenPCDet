@@ -227,8 +227,12 @@ class Argo2Dataset(DatasetTemplate):
             self.class_group = class_group_v4
         elif class_group_version == 'v5':
             self.class_group = class_group_v5
-        # elif class_group_version == 'v6':
-        #     self.class_group = class_group_v6
+        elif class_group_version == 'v6':
+            self.class_group = class_group_v6
+        elif class_group_version == 'v7':
+            self.class_group = class_group_v7
+        # elif class_group_version == 'v8':
+        #     self.class_group = class_group_v8
         # Log class group config
         if self.logger is not None:
             self.logger.info(f'Class group [{class_group_version}] {self.class_group}')
