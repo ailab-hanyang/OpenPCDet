@@ -208,6 +208,13 @@ class Argo2Dataset(DatasetTemplate):
                             ['Bus', 'Box_truck', 'Truck'],
                             ['Pedestrian', 'Bicyclist', 'Motorcyclist'],
                             ['Bicycle', 'Motorcycle']]
+        class_group_v6 = [['Regular_vehicle', 'Truck'], # Merge Truck(mail, garbage, utility) into Regular_vehicle
+                            ['Bus', 'Box_truck'],
+                            ['Pedestrian', 'Bicyclist', 'Motorcyclist'],
+                            ['Bicycle', 'Motorcycle']]
+        class_group_v7 = [['Regular_vehicle', 'Bus', 'Box_truck', 'Truck', 'Vehicular_trailer'], # Simplied 3 Class (Regular_vehicle | Pedestrian | Bicycle)
+                            ['Pedestrian', 'Bicyclist', 'Motorcyclist'],
+                            ['Bicycle', 'Motorcycle']]
         
         class_group_version = dataset_cfg.get('CLASS_GROUP', 'v1')
         if class_group_version == 'v1':

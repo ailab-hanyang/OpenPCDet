@@ -102,9 +102,13 @@ class CustomDataset(DatasetTemplate):
             annos = common_utils.drop_info_with_name(annos, name='DontCare')
             gt_names = annos['name']
             gt_boxes_lidar = annos['gt_boxes_lidar']
+            valid_mask = self.filter_boxes_by_range(gt_boxes_lidar)
+            valid_gt_names = gt_names[valid_mask]
+            valid_gt_boxes_lidar = gt_boxes_lidar[valid_mask, :7]
+
             input_dict.update({
-                'gt_names': gt_names,
-                'gt_boxes': gt_boxes_lidar
+                'gt_names': valid_gt_names,
+                'gt_boxes': valid_gt_boxes_lidar
             })
 
         data_dict = self.prepare_data(data_dict=input_dict)
@@ -166,6 +170,21 @@ class CustomDataset(DatasetTemplate):
         with futures.ThreadPoolExecutor(num_workers) as executor:
             infos = executor.map(process_single_scene, sample_id_list)
         return list(infos)
+
+    def filter_boxes_by_range(self, boxes):
+        # box filtering
+        x_min, y_min, z_min, x_max, y_max, z_max = self.point_cloud_range   
+        mask = (boxes[:, 0] >= x_min) & (boxes[:, 0] <= x_max) & \
+               (boxes[:, 1] >= y_min) & (boxes[:, 1] <= y_max) & \
+               (boxes[:, 2] >= z_min) & (boxes[:, 2] <= z_max)
+        # 2: range filtering
+        # max_range = 40 # m
+        # mask = np.linalg.norm(boxes[:, :3], axis=1) < max_range
+
+        # Log masking object number
+        # if mask.sum() != boxes.shape[0]:
+        #     print('Filtering objects by range: %d -> %d' % (boxes.shape[0], mask.sum()))
+        return mask
 
     def create_groundtruth_database(self, info_path=None, used_classes=None, split='train'):
         import torch

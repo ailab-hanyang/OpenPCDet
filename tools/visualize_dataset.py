@@ -57,7 +57,6 @@ class DemoDataset(DatasetTemplate):
             'points': points,
             'frame_id': index,
         }
-        print(self.label_file_list[index])
         gt_boxes_lidar, gt_names = self.get_label(self.label_file_list[index])
         input_dict.update({
             'gt_names': gt_names,
