@@ -58,7 +58,7 @@ def create_image_sets(label_file_list, save_path, sample_rate, split='test'):
 def main():
     # V2 Configuration
     # root_path = Path("/home/ailab/AILabDataset/02_Custom_Dataset/21_RSCube_Dataset/V2/Raw")
-    # save_path = Path("/home/ailab/AILabDataset/02_Custom_Dataset/21_RSCube_Dataset/V4/Processed")
+    # save_path = Path("/home/ailab/AILabDataset/02_Custom_Dataset/21_RSCube_Dataset/V2/Processed")
     # scenarios = ['test']
     # split = {'test': ['urban', 'highway']}
     # sample_rate = 2
