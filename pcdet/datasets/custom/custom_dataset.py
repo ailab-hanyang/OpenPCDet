@@ -53,13 +53,18 @@ class CustomDataset(DatasetTemplate):
             lines = f.readlines()
 
         # [N, 8]: (x y z dx dy dz heading_angle category_id)
+        # [N, 9]: (x y z dx dy dz heading_angle category_id confidence)
         gt_boxes = []
         gt_names = []
         for line in lines:
             # line_list = line.strip().split(' ')
             line_list = line.split()
-            gt_boxes.append(line_list[:-1])
-            gt_names.append(line_list[-1])
+            if len(line_list) == 8:
+                gt_boxes.append(line_list[:-1])
+                gt_names.append(line_list[-1])
+            elif len(line_list) == 9: # With confidence
+                gt_boxes.append(line_list[:-2])
+                gt_names.append(line_list[-2])
 
         return np.array(gt_boxes, dtype=np.float32), np.array(gt_names)
 
@@ -252,9 +257,9 @@ class CustomDataset(DatasetTemplate):
                 f.write(line)
 
 
-def create_custom_infos(dataset_cfg, class_names, data_path, save_path, workers=4):
+def create_custom_infos(dataset_cfg, class_names, save_path, workers=4):
     dataset = CustomDataset(
-        dataset_cfg=dataset_cfg, class_names=class_names, root_path=data_path,
+        dataset_cfg=dataset_cfg, class_names=class_names,
         training=False, logger=common_utils.create_logger()
     )
     train_split, val_split = 'train', 'val'
@@ -322,9 +327,8 @@ if __name__ == '__main__':
         ROOT_DIR = (Path(__file__).resolve().parent / '../../../').resolve()
         create_custom_infos(
             dataset_cfg=dataset_cfg,
-            class_names=['Vehicle', 'Pedestrian', 'Cyclist'],
-            data_path=ROOT_DIR / 'data' / 'custom',
-            save_path=ROOT_DIR / 'data' / 'custom',
+            class_names=dataset_cfg.CLASS_NAMES,
+            save_path=Path(dataset_cfg.DATA_PATH)
         )
 
     if sys.argv.__len__() > 1 and sys.argv[1] == 'create_custom_infos_test':
