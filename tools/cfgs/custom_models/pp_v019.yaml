@@ -55,7 +55,7 @@ MODEL:
         ANCHOR_GENERATOR_CONFIG: [
             {
                 'class_name': 'Regular_vehicle',
-                'anchor_sizes': [[4.98, 2.09, 1.84]],
+                'anchor_sizes': [[4.99, 2.09, 1.84]],
                 'anchor_rotations': [0, 1.57],
                 'anchor_bottom_heights': [-0.3],
                 'align_center': False,
@@ -65,7 +65,7 @@ MODEL:
             },
             {
                 'class_name': 'Bus',
-                'anchor_sizes': [[6.92, 2.57, 2.82], [11.87, 2.95, 3.37]],
+                'anchor_sizes': [[7.0, 2.51, 2.83], [11.58, 2.93, 3.49]],
                 'anchor_rotations': [0, 1.57],
                 'anchor_bottom_heights': [-0.6],
                 'align_center': False,
@@ -75,7 +75,7 @@ MODEL:
             },
             {
                 'class_name': 'Pedestrian',
-                'anchor_sizes': [[0.72, 0.71, 1.8]],
+                'anchor_sizes': [[0.74, 0.71, 1.8]],
                 'anchor_rotations': [0, 1.57],
                 'anchor_bottom_heights': [-0.6],
                 'align_center': False,
@@ -85,7 +85,7 @@ MODEL:
             },
             {
                 'class_name': Bicycle,
-                'anchor_sizes': [[2.14, 0.93, 1.73]],
+                'anchor_sizes': [[2.01, 0.91, 1.73]],
                 'anchor_rotations': [0, 1.57],
                 'anchor_bottom_heights': [-0.6],
                 'align_center': False,
