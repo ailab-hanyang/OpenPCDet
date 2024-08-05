@@ -2,7 +2,7 @@ CLASS_NAMES: ['Regular_vehicle', 'Bus', 'Pedestrian', 'Bicycle']
 
 DATA_CONFIG:
     _BASE_CONFIG_: cfgs/dataset_configs/rscube_dataset_v5.yaml
-    POINT_CLOUD_RANGE: [-102.4, -51.2, -10, 102.4, 51.2, 10]
+    POINT_CLOUD_RANGE: [-102.4, -51.2, -8.0, 102.4, 51.2, 8.0]
     DATA_PROCESSOR:
         -   NAME: mask_points_and_boxes_outside_range
             REMOVE_OUTSIDE_BOXES: True
@@ -14,7 +14,7 @@ DATA_CONFIG:
             }
 
         -   NAME: transform_points_to_voxels
-            VOXEL_SIZE: [0.8, 0.8, 20.0]
+            VOXEL_SIZE: [0.8, 0.8, 16.0]
             MAX_POINTS_PER_VOXEL: 64
             MAX_NUMBER_OF_VOXELS: {
                 'train': 60000,
@@ -128,7 +128,7 @@ MODEL:
 
 OPTIMIZATION:
     BATCH_SIZE_PER_GPU: 8
-    NUM_EPOCHS: 105
+    NUM_EPOCHS: 100
 
     OPTIMIZER: adam_onecycle
     LR: 0.0005
