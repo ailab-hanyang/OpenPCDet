@@ -18,6 +18,7 @@ CLASS_COLORS = {
     'Bicycle': [0, 0, 1],    # Blue
     'Bus': [1, 1, 0],      # Yellow
     'UNKNOW': [1, 0, 1],  # Magenta
+    'UNKNOWN': [1, 0, 1],  # Magenta
 }
 
 DEFAULT_COLOR = [0.5, 0.5, 0.5]  # Gray
@@ -74,8 +75,12 @@ class DemoDataset(DatasetTemplate):
         gt_names = []
         for line in lines:
             line_list = line.split()
-            gt_boxes.append(line_list[:-1])
-            gt_names.append(line_list[-1])
+            if len(line_list) == 8:
+                gt_boxes.append(line_list[:-1])
+                gt_names.append(line_list[-1])
+            elif len(line_list) == 9: # With confidence
+                gt_boxes.append(line_list[:-2])
+                gt_names.append(line_list[-2])
 
         return np.array(gt_boxes, dtype=np.float32), np.array(gt_names)
 
@@ -155,10 +160,14 @@ def visualize_frame(demo_dataset, logger):
             line_set.paint_uniform_color(color)
             vis.add_geometry(line_set)
 
+            # Create and add arrow to represent heading
+            heading_arrow = create_heading_arrow(gt_boxes[i], color)
+            vis.add_geometry(heading_arrow)
+
         ctr = vis.get_view_control()
-        ctr.set_front([0, 0, -1])
+        ctr.set_front([0, 0, 1])
         ctr.set_lookat([0, 0, 0])
-        ctr.set_up([0, -1, 0])
+        ctr.set_up([0, 1, 0])
         ctr.set_zoom(0.1)
 
         vis.poll_events()
@@ -167,9 +176,43 @@ def visualize_frame(demo_dataset, logger):
     logger.info('Visualization done.')
     vis.destroy_window()
 
+
+def create_heading_arrow(box, color):
+    """Create an arrow representing the heading of the bounding box."""
+    center = box[:3]
+    heading_vector = np.array([np.cos(box[6]), np.sin(box[6]), 0])  # Heading in xy-plane
+
+    arrow_start = center
+    arrow_end = center + heading_vector * 2  # Scale arrow length
+
+    arrow = o3d.geometry.TriangleMesh.create_arrow(
+        cylinder_radius=0.1, cone_radius=0.2,
+        cylinder_height=2.0, cone_height=0.5,
+        resolution=20, cylinder_split=4, cone_split=1
+    )
+    
+    # Move the arrow to the correct position
+    translation = np.eye(4)
+    translation[:3, 3] = arrow_start
+    arrow.transform(translation)
+
+    # Rotate the arrow to point in the correct direction
+    arrow_direction = arrow_end - arrow_start
+    arrow_direction /= np.linalg.norm(arrow_direction)
+    arrow_up = np.array([0, 0, 1])
+    axis = np.cross(arrow_up, arrow_direction)
+    angle = np.arccos(np.dot(arrow_up, arrow_direction))
+
+    rotation = o3d.geometry.get_rotation_matrix_from_axis_angle(axis * angle)
+    arrow.rotate(rotation, center=arrow_start)
+    
+    arrow.paint_uniform_color(color)
+    
+    return arrow
+
 def parse_config():
     parser = argparse.ArgumentParser(description='Dataset Visualization')
-    parser.add_argument('--cfg_file', type=str, default='cfgs/dataset_configs/rscube_dataset_v4.yaml',
+    parser.add_argument('--cfg_file', type=str, default='cfgs/dataset_configs/rscube_dataset_v5.yaml',
                         help='specify the config for visualization')
     parser.add_argument('--ext', type=str, default='.npy', help='specify the extension of your point cloud data file')
     parser.add_argument('--vis_frame', action='store_true', help='Enable frame-wise visualization')

@@ -1,0 +1,47 @@
+[
+    {
+        "class_name": "Pedestrian",
+        "anchor_sizes": [
+            [
+                0.74,
+                0.71,
+                1.8
+            ]
+        ]
+    },
+    {
+        "class_name": "Bus",
+        "anchor_sizes": [
+            [
+                7.0,
+                2.51,
+                2.83
+            ],
+            [
+                11.58,
+                2.93,
+                3.49
+            ]
+        ]
+    },
+    {
+        "class_name": "Bicycle",
+        "anchor_sizes": [
+            [
+                2.01,
+                0.91,
+                1.73
+            ]
+        ]
+    },
+    {
+        "class_name": "Regular_vehicle",
+        "anchor_sizes": [
+            [
+                4.99,
+                2.09,
+                1.84
+            ]
+        ]
+    }
+]
