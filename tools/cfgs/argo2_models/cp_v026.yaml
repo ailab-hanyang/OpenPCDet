@@ -2,6 +2,7 @@ CLASS_NAMES: ['Regular_vehicle', 'Bus', 'Pedestrian', 'Bicycle']
 
 DATA_CONFIG:
     _BASE_CONFIG_: cfgs/dataset_configs/rscube_dataset_v5.yaml
+    CLASS_GROUP: v6
     POINT_CLOUD_RANGE: [-102.4, -51.2, -2.0, 102.4, 51.2, 6.0]
     DATA_AUGMENTOR:
         DISABLE_AUG_LIST: ['placeholder']
