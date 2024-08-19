@@ -62,7 +62,7 @@ MODEL:
                 'center_z': {'out_channels': 1, 'num_conv': 2},
                 'dim': {'out_channels': 3, 'num_conv': 2},
                 'rot': {'out_channels': 2, 'num_conv': 2},
-                'iou': {'out_channels': 1, 'num_conv': 2},
+                # 'iou': {'out_channels': 1, 'num_conv': 2},
             }
 
         TARGET_ASSIGNER_CONFIG:
@@ -71,7 +71,6 @@ MODEL:
             GAUSSIAN_OVERLAP: 0.1
             MIN_RADIUS: 2
 
-        IOU_REG_LOSS: True
         LOSS_CONFIG:
             LOSS_WEIGHTS: {
                 'cls_weight': 1.0,
@@ -97,7 +96,7 @@ MODEL:
 
 
 OPTIMIZATION:
-    BATCH_SIZE_PER_GPU: 4
+    BATCH_SIZE_PER_GPU: 8
     NUM_EPOCHS: 100
 
     OPTIMIZER: adam_onecycle
