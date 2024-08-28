@@ -1,12 +1,13 @@
 # Training
-FROM nvcr.io/nvidia/pytorch:23.04-py3
+# FROM nvcr.io/nvidia/pytorch:23.02-py3 # Torch 1.14.0(가장 마지막 Torch 1.대 버전), CUDA 12.0.1, 
+# FROM nvcr.io/nvidia/pytorch:23.04-py3
 # Deployment
-# FROM nvcr.io/nvidia/tensorrt:23.04-py3
+FROM nvcr.io/nvidia/tensorrt:23.04-py3
 # Jetson Inference
 # FROM nvcr.io/nvidia/l4t-pytorch:r35.1.0-pth1.13-py3
 
 # Set environment variables
-ENV NVENCODE_CFLAGS "-I/usr/local/cuda/include"
+ENV NVENCODE_CFLAGS="-I/usr/local/cuda/include"
 ENV CV_VERSION=4.2.0
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TERM=xterm-256color
@@ -20,21 +21,6 @@ RUN apt update && apt install -y \
     libsuitesparse-dev python3-pcl pcl-tools libgtk2.0-dev libavcodec-dev libavformat-dev libswscale-dev libtbb2 libtbb-dev libjpeg-dev \
     libpng-dev libtiff-dev libdc1394-22-dev xfce4-terminal bash-completion sudo
 
-# OpenCV
-WORKDIR /opencv
-RUN git clone https://github.com/opencv/opencv.git -b $CV_VERSION
-
-WORKDIR /opencv/opencv/build
-
-RUN cmake .. &&\
-make -j12 &&\
-make install &&\
-ldconfig &&\
-rm -rf /opencv
-
-WORKDIR /
-ENV OpenCV_DIR=/usr/share/OpenCV
-
 # PyTorch for CUDA 12.1
 RUN pip install torch==2.1.1 torchvision==0.16.1 torchaudio==2.1.1 --index-url https://download.pytorch.org/whl/cu121
 ENV TORCH_CUDA_ARCH_LIST="5.0;6.0;6.1;7.0;7.5;8.0;8.6;8.9+PTX"
@@ -42,7 +28,7 @@ ENV TORCH_CUDA_ARCH_LIST="5.0;6.0;6.1;7.0;7.5;8.0;8.6;8.9+PTX"
 # OpenPCDet Dependencies
 RUN apt remove python3-blinker -y
 RUN pip install -U pip
-RUN pip install numpy==1.23.0 llvmlite numba tensorboardX easydict pyyaml scikit-image tqdm SharedArray open3d==0.16.0 mayavi av2 kornia==0.6.8 pyquaternion colored
+RUN pip install numpy==1.23.0 llvmlite numba tensorboardX easydict pyyaml scikit-image tqdm SharedArray open3d==0.16.0 mayavi av2 kornia==0.6.8 pyquaternion colored gpustat
 RUN pip install spconv-cu120
 RUN pip install opencv-python==4.2.0.34
 RUN pip install onnx==1.16.0
