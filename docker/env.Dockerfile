@@ -8,7 +8,6 @@ FROM nvcr.io/nvidia/tensorrt:23.04-py3
 
 # Set environment variables
 ENV NVENCODE_CFLAGS="-I/usr/local/cuda/include"
-ENV CV_VERSION=4.2.0
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TERM=xterm-256color
 
@@ -53,7 +52,7 @@ RUN apt install python3-rosdep python3-rosinstall python3-rosinstall-generator p
 # Initialize and update rosdep
 RUN rosdep init && rosdep update
 
-# ROS2 Humbpe installation
+# ROS2 Humble installation
 # TODO
 
 # ROS2 Foxy installation
