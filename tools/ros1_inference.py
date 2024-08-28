@@ -114,15 +114,15 @@ class OnlineDetection:
         '''
         # ROS Parameter
         '''
-        # self.model_path = "../output/rscube_models/pointpillar_voxel0016/default/ckpt/latest_model.pth"
-        # self.config_path = "../output/rscube_models/pointpillar_voxel0016/default/pointpillar_voxel0016.yaml"
-        self.model_path = "/home/ailab/AILabDataset/03_Shared_Repository/jinsu/10_AICube/1st_training/custom_models/pp_v020/default/ckpt/checkpoint_epoch_100.pth"
-        self.config_path = "/home/ailab/AILabDataset/03_Shared_Repository/jinsu/10_AICube/1st_training/custom_models/pp_v020/default/pp_v020.yaml"
+        self.model_path = "path/to/weight.pth"
+        self.config_path = "path/to/network_configuration.yaml"
+        # self.model_path = "/home/ailab/AILabDataset/03_Shared_Repository/jinsu/10_AICube/1st_training/custom_models/pp_v020/default/ckpt/checkpoint_epoch_100.pth" # Demo
+        # self.config_path = "/home/ailab/AILabDataset/03_Shared_Repository/jinsu/10_AICube/1st_training/custom_models/pp_v020/default/pp_v020.yaml" # Demo
         self.score_thresh = 0.6
         self.sub_lidar_topic = "/velodyne_points"
         self.z_offset = 1.65 # meter
-        self.pub_jsk_objects_topic = "/openpcdet/jsk_bbox"
-        self.pub_rviz_objects_topic = "/openpcdet/marker_bbox"
+        self.pub_jsk_objects_topic = "/openpcdet/jsk_bbox_array"
+        self.pub_rviz_objects_topic = "/openpcdet/makker_array"
         self.pub_delayed_lidar_topic = "/velodyne_points/delayed"
 
         '''
