@@ -53,12 +53,18 @@ class CustomDataset(DatasetTemplate):
             lines = f.readlines()
 
         # [N, 8]: (x y z dx dy dz heading_angle category_id)
+        # [N, 9]: (x y z dx dy dz heading_angle category_id confidence)
         gt_boxes = []
         gt_names = []
         for line in lines:
-            line_list = line.strip().split(' ')
-            gt_boxes.append(line_list[:-1])
-            gt_names.append(line_list[-1])
+            # line_list = line.strip().split(' ')
+            line_list = line.split()
+            if len(line_list) == 8:
+                gt_boxes.append(line_list[:-1])
+                gt_names.append(line_list[-1])
+            elif len(line_list) == 9: # With confidence
+                gt_boxes.append(line_list[:-2])
+                gt_names.append(line_list[-2])
 
         return np.array(gt_boxes, dtype=np.float32), np.array(gt_names)
 
@@ -101,9 +107,13 @@ class CustomDataset(DatasetTemplate):
             annos = common_utils.drop_info_with_name(annos, name='DontCare')
             gt_names = annos['name']
             gt_boxes_lidar = annos['gt_boxes_lidar']
+            valid_mask = self.filter_boxes_by_range(gt_boxes_lidar)
+            valid_gt_names = gt_names[valid_mask]
+            valid_gt_boxes_lidar = gt_boxes_lidar[valid_mask, :7]
+
             input_dict.update({
-                'gt_names': gt_names,
-                'gt_boxes': gt_boxes_lidar
+                'gt_names': valid_gt_names,
+                'gt_boxes': valid_gt_boxes_lidar
             })
 
         data_dict = self.prepare_data(data_dict=input_dict)
@@ -163,6 +173,21 @@ class CustomDataset(DatasetTemplate):
         with futures.ThreadPoolExecutor(num_workers) as executor:
             infos = executor.map(process_single_scene, sample_id_list)
         return list(infos)
+
+    def filter_boxes_by_range(self, boxes):
+        # box filtering
+        x_min, y_min, z_min, x_max, y_max, z_max = self.point_cloud_range   
+        mask = (boxes[:, 0] >= x_min) & (boxes[:, 0] <= x_max) & \
+               (boxes[:, 1] >= y_min) & (boxes[:, 1] <= y_max) & \
+               (boxes[:, 2] >= z_min) & (boxes[:, 2] <= z_max)
+        # 2: range filtering
+        # max_range = 40 # m
+        # mask = np.linalg.norm(boxes[:, :3], axis=1) < max_range
+
+        # Log masking object number
+        # if mask.sum() != boxes.shape[0]:
+        #     print('Filtering objects by range: %d -> %d' % (boxes.shape[0], mask.sum()))
+        return mask
 
     def create_groundtruth_database(self, info_path=None, used_classes=None, split='train'):
         import torch
@@ -230,9 +255,9 @@ class CustomDataset(DatasetTemplate):
                 f.write(line)
 
 
-def create_custom_infos(dataset_cfg, class_names, data_path, save_path, workers=4):
+def create_custom_infos(dataset_cfg, class_names, save_path, workers=4):
     dataset = CustomDataset(
-        dataset_cfg=dataset_cfg, class_names=class_names, root_path=data_path,
+        dataset_cfg=dataset_cfg, class_names=class_names,
         training=False, logger=common_utils.create_logger()
     )
     train_split, val_split = 'train', 'val'
@@ -277,7 +302,6 @@ if __name__ == '__main__':
         ROOT_DIR = (Path(__file__).resolve().parent / '../../../').resolve()
         create_custom_infos(
             dataset_cfg=dataset_cfg,
-            class_names=['Vehicle', 'Pedestrian', 'Cyclist'],
-            data_path=ROOT_DIR / 'data' / 'custom',
-            save_path=ROOT_DIR / 'data' / 'custom',
+            class_names=dataset_cfg.CLASS_NAMES,
+            save_path=Path(dataset_cfg.DATA_PATH)
         )
