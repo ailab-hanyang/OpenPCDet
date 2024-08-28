@@ -48,6 +48,7 @@ RUN apt update && apt install -y \
 
 # Install ROS dependencies and tools
 RUN apt install python3-rosdep python3-rosinstall python3-rosinstall-generator python3-wstool build-essential
+RUN apt install ros-noetic-ros-numpy ros-noetic-jsk-recognition-msgs
 
 # Initialize and update rosdep
 RUN rosdep init && rosdep update
