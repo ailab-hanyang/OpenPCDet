@@ -65,7 +65,7 @@ def main():
 
     # V3 Configuration
     root_path = Path("/home/ailab/AILabDataset/02_Custom_Dataset/21_RSCube_Dataset/V3/Raw")
-    save_path = Path("/home/ailab/AILabDataset/02_Custom_Dataset/21_RSCube_Dataset/V3/Processed")
+    save_path = Path("/home/ailab/AILabDataset/02_Custom_Dataset/21_RSCube_Dataset/V3/Processed_240916")
     scenarios = ['train', 'val']
     split = {'train': ['1_1', '2_6', '2_8', '2_9', '2_10', '2_11', '2_12', '2_13'],
              'val': ['1_2', '2_7', '2_14']}
